@@ -1,23 +1,23 @@
 using Pumas
-using Measures
+using DeepPumas
+using CairoMakie
+using Plots
+
 using XLSX
 using DifferentialEquations
-using Plots
-using StatsPlots
 using Random
 using JLD2
 using Symbolics
-using Flux
 using LaTeXStrings
-using Images
-###using Distributions
-###using ProgressMeter
+##usingSerialization
 
+
+
+include("models.jl");
 include("SymbolicsForwardDiffExt.jl")
 include("process_data.jl");
 include("convenience.jl");
 include("symbolic_manipulations.jl");
-include("models.jl");
 include("models_with_NN.jl");
 include("eq_comparisons.jl");
 include("dyn_comparisons.jl");
@@ -27,14 +27,14 @@ f_xlsx = XLSX.readxlsx("dataset.xlsx");
 full_pop  = fetch_data(f_xlsx);
 ###og_pop    = fetch_data(f_xlsx);
 ###og_pop    = subsample_start(og_pop, 1:10:230)
-###
-A = full_pop[1:13];
-B = full_pop[14:24];
-C = full_pop[25:35];
-D = full_pop[36:51];
-E = full_pop[52:65];
-F = full_pop[66:80];
-G = full_pop[81:94];
+
+###A = full_pop[1:13];
+###B = full_pop[14:24];
+###C = full_pop[25:35];
+###D = full_pop[36:51];
+###E = full_pop[52:65];
+###F = full_pop[66:80];
+###G = full_pop[81:94];
 
 #####train_pop = [A[1:7  ]; B[1:7  ]; C[1:7  ]; D[1:7  ]; E[1:7  ]; F[1:7  ]; G[1:7]];
 #####val_pop   = [A[8:10 ]; B[8:9  ]; C[8:9  ]; D[8:12 ]; E[8:11 ]; F[8:11 ]; G[8:11]];
@@ -44,9 +44,9 @@ G = full_pop[81:94];
 ###test_pop  = [A[11:13]; B[10:11]; D[13:16]; E[12:14]; F[12:15]; G[12:14]];
 
 
-n_models = 3
+n_models = 20
 seeds = 1:n_models
-sub_range = 1:10:230
+sub_range = nothing ###1:10:230
 
 
 
@@ -54,8 +54,11 @@ fpms_bwell, p_bwell_train, p_bwell_val, val_idxs_bwell, test_idxs_bwell = train_
     full_pop, 
     n_models,
     seeds;
-    sub_range = sub_range
+    sub_range = sub_range,
 );
+serialize("Data/fpms_bwell.jls",fpms_bwell)
+serialize("Data/val_idxs_bwell.jls",val_idxs_bwell)
+serialize("Data/test_idxs_bwell.jls",test_idxs_bwell)
 
 fpms_bwell_fixed, p_bwell_train_fixed, p_bwell_val_fixed, val_idxs_bwell_fixed, test_idxs_bwell_fixed = train_plot("Blackwell_fixed", 
     full_pop, 
@@ -63,6 +66,7 @@ fpms_bwell_fixed, p_bwell_train_fixed, p_bwell_val_fixed, val_idxs_bwell_fixed, 
     seeds; 
     sub_range = sub_range
 );
+serialize("Data/fpms_bwell_fixed.jls",fpms_bwell_fixed)
 
 
 
@@ -72,6 +76,7 @@ fpms_pepke_m2, p_pepke_m2_train, p_pepke_m2_val, val_idxs_pepke_m2, test_idxs_pe
     seeds; 
     sub_range = sub_range
 );
+serialize("Data/fpms_pepke_m2.jls",fpms_pepke_m2)
 
 fpms_pepke_m2_fixed, p_pepke_m2_train_fixed, p_pepke_m2_val_fixed, val_idxs_pepke_m2_fixed, test_idxs_pepke_m2_fixed = train_plot("Pepke_m2_fixed", 
     full_pop, 
@@ -79,6 +84,7 @@ fpms_pepke_m2_fixed, p_pepke_m2_train_fixed, p_pepke_m2_val_fixed, val_idxs_pepk
     seeds; 
     sub_range = sub_range
 );
+serialize("Data/fpms_pepke_m2_fixed.jls",fpms_pepke_m2_fixed)
 
 
 
@@ -88,6 +94,7 @@ fpms_faas, p_faas_train, p_faas_val, val_idxs_faas, test_idxs_faas = train_plot(
     seeds;
     sub_range = sub_range
 );
+serialize("Data/fpms_faas.jls",fpms_faas)
 
 fpms_faas_fixed, p_faas_train_fixed, p_faas_val_fixed, val_idxs_faas_fixed, test_idxs_faas_fixed = train_plot("Faas_fixed", 
     full_pop, 
@@ -95,6 +102,7 @@ fpms_faas_fixed, p_faas_train_fixed, p_faas_val_fixed, val_idxs_faas_fixed, test
     seeds; 
     sub_range = sub_range
 );
+serialize("Data/fpms_faas_fixed.jls",fpms_faas_fixed)
 
 fpms_pepke_m1_fixed, p_pepke_m1_train_fixed, p_pepke_m1_val_fixed, val_idxs_pepke_m1_fixed, test_idxs_pepke_m1_fixed = train_plot("Pepke_m1_fixed", 
     full_pop, 
@@ -102,6 +110,7 @@ fpms_pepke_m1_fixed, p_pepke_m1_train_fixed, p_pepke_m1_val_fixed, val_idxs_pepk
     seeds; 
     sub_range = sub_range
 );
+serialize("Data/fpms_pepke_m1_fixed.jls",fpms_pepke_m1_fixed)
 
 
 
@@ -111,6 +120,7 @@ fpms_byrne, p_byrne_train, p_byrne_val, val_idxs_byrne, test_idxs_byrne = train_
     seeds; 
     sub_range = sub_range,
 );
+serialize("Data/fpms_byrne.jls",fpms_byrne)
 
 fpms_byrne_fixed, p_byrne_train_fixed, p_byrne_val_fixed, val_idxs_byrne_fixed, test_idxs_byrne_fixed = train_plot("Byrne_fixed", 
     full_pop, 
@@ -118,10 +128,24 @@ fpms_byrne_fixed, p_byrne_train_fixed, p_byrne_val_fixed, val_idxs_byrne_fixed, 
     seeds; 
     sub_range = sub_range
 );
+serialize("Data/fpms_byrne_fixed.jls",fpms_byrne_fixed)
 
 
 
-
+###fpm_ms = msfit(
+###    Blackwell_scheme,
+###    fpms_bwell[1].data,
+###    init_params(Blackwell_scheme),
+###    JointMAP(),
+###    3,
+###    1, #or standard deviation of shooting penalty hyper prior if below argument is not nothing
+###    :L1; #:L1 or :L2, :L1 should be highly favoured because it performed much better in experiments
+###    hyper_prior_type = nothing, #nothing/:L1/:L2,
+###    return_with_shooting = false, #true/false, if false, does a 0 iteration fit and returns a FittePumasModel with the original model
+###    #regular Pumas.fit kwargs, e.g. optim_options, diffeq_options, constantcoef, etc.
+###    optim_options=(; iterations=2000, store_trace=true),
+###    diffeq_options=(;alg=Rodas5P(), abstol=1e-16)
+###)
 
 
 ###########################

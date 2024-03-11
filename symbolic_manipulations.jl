@@ -777,16 +777,27 @@ end
 
 
 
+###function solve_Bwell_eq(Kd_1, Kd_2, Ca_free, CaM_t, CaM_equil)
+###
+###    if CaM_equil
+###        c1      = 1 + Kd_2/Ca_free^2
+###        c2      = 1 + Ca_free^2/Kd_1
+###        CaM₀    = (c1 - 1) / (c2 * c1 - 1) * CaM_t
+###        CaM2Ca₀ = CaM₀ * Ca_free^2 / Kd_1
+###        CaM4Ca₀ = (c2 - 1) / (c2 * c1 - 1) * CaM_t
+###        return [CaM₀; CaM2Ca₀; CaM4Ca₀]
+###    else
+###        return [CaM_t; 0.0; 0.0]
+###    end
+###end
+
+
 function solve_Bwell_eq(Kd_1, Kd_2, Ca_free, CaM_t, CaM_equil)
 
-    if CaM_equil
-        c1      = 1 + Kd_2/Ca_free^2
-        c2      = 1 + Ca_free^2/Kd_1
-        CaM₀    = (c1 - 1) / (c2 * c1 - 1) * CaM_t
-        CaM2Ca₀ = CaM₀ * Ca_free^2 / Kd_1
-        CaM4Ca₀ = (c2 - 1) / (c2 * c1 - 1) * CaM_t
-        return [CaM₀; CaM2Ca₀; CaM4Ca₀]
-    else
-        return [CaM_t; 0.0; 0.0]
-    end
+    c1      = 1 + Kd_2/Ca_free^2
+    c2      = 1 + Ca_free^2/Kd_1
+    CaM₀    = (c1 - 1) / (c2 * c1 - 1) * CaM_t
+    CaM2Ca₀ = CaM₀ * Ca_free^2 / Kd_1
+    CaM4Ca₀ = (c2 - 1) / (c2 * c1 - 1) * CaM_t
+    return [CaM₀; CaM2Ca₀; CaM4Ca₀]
 end

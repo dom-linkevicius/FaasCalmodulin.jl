@@ -127,7 +127,7 @@ function plot_training_by_condition(fpms, colors; names=nothing, add_legend=fals
         push!(plots, p0)
     end
 
-    ret_plot = Plots.plot(plots..., size=(1600, 1200), left_margin=5mm, layout=(2,4))
+    ret_plot = Plots.plot(plots..., size=(1600, 1200), layout=(2,4))
     return ret_plot
 end
 
@@ -189,7 +189,7 @@ function plot_unseen_by_condition(fpms, pops, colors; names=nothing, add_legend=
         push!(plots, p0)
     end
 
-    ret_plot = Plots.plot(plots..., size=(1600, 1200), left_margin=5mm, layout=(2,4))
+    ret_plot = Plots.plot(plots..., size=(1600, 1200), layout=(2,4))
     return ret_plot
 end
 
@@ -272,7 +272,7 @@ function train_plot(model_type,
     sub_range=nothing,
     alg=JointMAP, 
     optim_options=(; iterations=2000, store_trace=true),
-    diffeq_options=(;alg=Rodas5P(), abstol=1e-14),
+    diffeq_options=(;alg=Rodas5P(), abstol=1e-16),
 ###    diffeq_options=(;alg=RadauIIA5(), abstol=1e-14),
 )
 
@@ -313,7 +313,8 @@ function train_plot(model_type,
         fpm_i = fit(model, 
         sub_pop[train_idx], 
         init_p, 
-        alg(), 
+        ###alg(), 
+        MAP(FOCE()), 
         optim_options=optim_options,
         diffeq_options=diffeq_options,
         constantcoef=constantcoefs

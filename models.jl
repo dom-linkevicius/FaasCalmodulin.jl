@@ -53,8 +53,9 @@ Blackwell_params = (;
     tv_Kd_1  = -6.77,
     tv_kon_2 = 5.0,
     tv_Kd_2  = -4.0,
-    tv_mα     = 0.0011,
-    tv_α₀     = -0.39,
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
+    NN = init_params(Blackwell_scheme).NN, 
     Ω         = ones(3),
     σ_vec     = [1; 1; 1]
 )
@@ -67,8 +68,9 @@ Faas_params = (;
     tv_Kd_TC  = -4.6,
     tv_kon_RC = 4.4, 
     tv_Kd_RC  = -6.6,
-    tv_mα     = 0.0011,
-    tv_α₀     = -0.39,
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
+    NN = init_params(Faas_scheme).NN, 
     Ω         = ones(3),
     σ_vec     = [1; 1; 1]
 );
@@ -81,8 +83,9 @@ Pepke_M1_params = (;
     tv_Kd_TC  = log10(9.65e-6),
     tv_kon_RC = log10(15e3), 
     tv_Kd_RC  = log10(1.05e-6),
-    tv_mα     = 0.0011,
-    tv_α₀     = -0.39,
+    NN = init_params(Faas_scheme).NN, 
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
     Ω         = ones(3),
     σ_vec     = [1; 1; 1]
 );
@@ -91,8 +94,9 @@ Pepke_M2_params = (;
     tv_Kd_2N  = log10(6.15e-6),
     tv_kon_2C = log10(15e3), 
     tv_Kd_2C  = log10(1.05e-6),
-    tv_mα     = 0.0011,
-    tv_α₀     = -0.39,
+    NN = init_params(Pepke_m2_scheme).NN, 
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
     Ω         = ones(3),
     σ_vec     = [1; 1; 1]
 );
@@ -104,7 +108,7 @@ Byrne_params = (;
     tv_k13_N    = log10(507.2e3),
     tv_K13d_N   = log10(3.45e-6),
     tv_k23_N    = log10(500e3),
-    tv_K23d_N   = log10(0.5e-6),
+###    tv_K23d_N   = log10(0.5e-6),
     tv_k01_C    = log10(2.75e5),
     tv_K01d_C   = log10(18.5e-6),
     tv_k02_C    = log10(2.75e5),
@@ -112,9 +116,10 @@ Byrne_params = (;
     tv_k13_C    = log10(3.71e3),
     tv_K13d_C   = log10(0.38e-6),
     tv_k23_C    = log10(1.18e5),
-    tv_K23d_C   = log10(0.06e-6),
-    tv_mα       = 0.0011,
-    tv_α₀       = -0.39,
+###    tv_K23d_C   = log10(0.06e-6),
+###    tv_mα       = 0.0011,
+###    tv_α₀       = -0.39,
+    NN = init_params(Byrne_scheme).NN, 
     Ω           = ones(3),
     σ_vec       = [1; 1; 1]
 )
@@ -127,11 +132,12 @@ Blackwell_scheme = @model begin ### Simplest scheme
         tv_kon_2     ∈ Uniform(2,  12)
         tv_Kd_2      ∈ Uniform(-12, -2)
 
-        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
-        tv_α₀         ∈ RealDomain(;              init = -0.39)
+###        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
+###        tv_α₀         ∈ RealDomain(;              init = -0.39)
+        NN           ∈ MLPDomain(2, (1, sigmoid, true); act=tanh, reg=L1(1e-4))
 
-        Ω             ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
-        σ_vec         ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
+        Ω            ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
+        σ_vec        ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
 
     end
 
@@ -164,7 +170,9 @@ Blackwell_scheme = @model begin ### Simplest scheme
     @pre begin
         σ         = σ_vec[batch_id]
         ###U         = max(0.0, (tv_mα*PCD + tv_α₀) * (1 + η[batch_id]))
-        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+        ###U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+        pre_PCD   = (PCD - 431)/41
+        U         = NN([pre_PCD; η[batch_id]])[1]
 
         Fmax_Fmin = 39.364
 
@@ -263,22 +271,22 @@ Blackwell_scheme = @model begin ### Simplest scheme
         F_F0 ~ @. Normal(ff0, σ)
     end
 
-    @observed begin
-        DMn_s   = DMn_s
-        CaDMn_s = CaDMn_s
-        DMn_f   = DMn_f
-        CaDMn_f = CaDMn_f
-        PP      = PP
-        CaPP    = CaPP
-        OGB5    = OGB5
-        CaOGB5  = CaOGB5
-        Fluo4FF    = Fluo4FF
-        CaFluo4FF  = CaFluo4FF
-        CaM     = CaM
-        CaM2Ca  = CaM2Ca
-        CaM4Ca  = CaM4Ca
-        Ca      = Ca
-    end
+###    @observed begin
+###        DMn_s   = DMn_s
+###        CaDMn_s = CaDMn_s
+###        DMn_f   = DMn_f
+###        CaDMn_f = CaDMn_f
+###        PP      = PP
+###        CaPP    = CaPP
+###        OGB5    = OGB5
+###        CaOGB5  = CaOGB5
+###        Fluo4FF    = Fluo4FF
+###        CaFluo4FF  = CaFluo4FF
+###        CaM     = CaM
+###        CaM2Ca  = CaM2Ca
+###        CaM4Ca  = CaM4Ca
+###        Ca      = Ca
+###    end
 end;
 
 
@@ -290,8 +298,9 @@ Pepke_m2_scheme = @model begin ### Simplest scheme with unique lobes
         tv_kon_2N     ∈ Uniform(2,  12)
         tv_Kd_2N      ∈ Uniform(-12, -2)
 
-        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
-        tv_α₀         ∈ RealDomain(;              init = -0.39)
+        NN           ∈ MLPDomain(2, (1, sigmoid, true); act=tanh, reg=L1(1e-4))
+###        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
+###        tv_α₀         ∈ RealDomain(;              init = -0.39)
 
         Ω             ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
         σ_vec         ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
@@ -326,7 +335,9 @@ Pepke_m2_scheme = @model begin ### Simplest scheme with unique lobes
     @pre begin
         σ         = σ_vec[batch_id]
         ###U         = max(0.0, (tv_mα*PCD + tv_α₀) * (1 + η[batch_id]))
-        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+###        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+        pre_PCD   = (PCD - 431)/41
+        U         = NN([pre_PCD; η[batch_id]])[1]
 
         Fmax_Fmin = 39.364
 
@@ -509,7 +520,9 @@ Blackwell_scheme_TR = @model begin ### Simplest scheme with tense/relaxed
     @pre begin
         σ         = σ_vec[batch_id]
         ###U         = max(0.0, (tv_mα*PCD + tv_α₀) * (1 + η[batch_id]))
-        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+###        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+        pre_PCD   = (PCD - 431)/41
+        U         = NN([pre_PCD; η[batch_id]])[1]
 
         Fmax_Fmin = 39.364
 
@@ -681,8 +694,10 @@ Faas_scheme = @model begin ### Faas scheme
         tv_kon_RC     ∈ Uniform(2, 12)
         tv_Kd_RC      ∈ Uniform(-12, -2)
 
-        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
-        tv_α₀         ∈ RealDomain(;              init = -0.39)
+
+        NN           ∈ MLPDomain(2, (1, sigmoid, true); act=tanh, reg=L1(1e-4))
+###        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
+###        tv_α₀         ∈ RealDomain(;              init = -0.39)
 
         Ω             ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
         σ_vec         ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
@@ -717,7 +732,9 @@ Faas_scheme = @model begin ### Faas scheme
     @pre begin
         σ         = σ_vec[batch_id]
         ###U         = max(0.0, (tv_mα*PCD + tv_α₀) * (1 + η[batch_id]))
-        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+###        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+        pre_PCD   = (PCD - 431)/41
+        U         = NN([pre_PCD; η[batch_id]])[1]
 
         Fmax_Fmin = 39.364
 
@@ -878,10 +895,11 @@ Byrne_scheme = @model begin ### Byrne scheme
         tv_k13_C      ∈ Uniform(2,   12)
         tv_K13d_C     ∈ Uniform(-12, -2)
         tv_k23_C      ∈ Uniform(2,   12)
-###        tv_K23d_C     ∈ Uniform(-12, -2) ### not a free param due to microscopic reversibility
+###        tv_K23d_C     ∈ Uniform(-12, -2) ### not a free param due to macroscopic reversibility
 
-        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.001, upper=1)
-        tv_α₀         ∈ RealDomain(;              init = -0.39)
+        NN           ∈ MLPDomain(2, (1, sigmoid, true); act=tanh, reg=L1(1e-4))
+###        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.001, upper=1)
+###        tv_α₀         ∈ RealDomain(;              init = -0.39)
 
         Ω             ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
         σ_vec         ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
@@ -916,7 +934,9 @@ Byrne_scheme = @model begin ### Byrne scheme
     @pre begin
         σ         = σ_vec[batch_id]
         ###U         = max(0.0, (tv_mα*PCD + tv_α₀) * (1 + η[batch_id]))
-        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+        ###U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+        pre_PCD   = (PCD - 431)/41
+        U         = NN([pre_PCD; η[batch_id]])[1]
 
         Fmax_Fmin = 39.364
 
