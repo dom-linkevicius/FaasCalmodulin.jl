@@ -1,128 +1,4 @@
-Blackwell_const_names = (
-    :tv_kon_1,
-    :tv_Kd_1,
-    :tv_kon_2,
-    :tv_Kd_2,
-#    :tv_mα,
-#    :tv_α₀
-)
-Pepke_M2_const_names = (
-    :tv_kon_2N, 
-    :tv_Kd_2N,
-    :tv_kon_2C, 
-    :tv_Kd_2C,
-#    :tv_mα,
-#    :tv_α₀
-);
-Faas_const_names = (
-    :tv_kon_TN,
-    :tv_Kd_TN,
-    :tv_kon_RN,
-    :tv_Kd_RN,
-    :tv_kon_TC,
-    :tv_Kd_TC,
-    :tv_kon_RC,
-    :tv_Kd_RC,
-#    :tv_mα,
-#    :tv_α₀
-);
-Byrne_const_names = (
-    :tv_k01_N,
-    :tv_K01d_N,
-    :tv_k02_N,
-    :tv_K02d_N,
-    :tv_k13_N,
-    :tv_K13d_N,
-    :tv_k23_N,
-###    :tv_K23d_N,
-    :tv_k01_C,
-    :tv_K01d_C,
-    :tv_k02_C,
-    :tv_K02d_C,
-    :tv_k13_C,
-    :tv_K13d_C,
-    :tv_k23_C,
-###    :tv_K23d_C,
-#    :tv_mα,
-#    :tv_α₀
-)
 
-
-Blackwell_params = (;
-    tv_kon_1 = 3.78,
-    tv_Kd_1  = -6.77,
-    tv_kon_2 = 5.0,
-    tv_Kd_2  = -4.0,
-###    tv_mα     = 0.0011,
-###    tv_α₀     = -0.39,
-    NN = init_params(Blackwell_scheme).NN, 
-    Ω         = ones(3),
-    σ_vec     = [1; 1; 1]
-)
-Faas_params = (;
-    tv_kon_TN = 5.9,  
-    tv_Kd_TN  = -3.7,
-    tv_kon_RN = 7.5, 
-    tv_Kd_RN  = -6.1,
-    tv_kon_TC = 4.9, 
-    tv_Kd_TC  = -4.6,
-    tv_kon_RC = 4.4, 
-    tv_Kd_RC  = -6.6,
-###    tv_mα     = 0.0011,
-###    tv_α₀     = -0.39,
-    NN = init_params(Faas_scheme).NN, 
-    Ω         = ones(3),
-    σ_vec     = [1; 1; 1]
-);
-Pepke_M1_params = (;
-    tv_kon_TN = log10(142.5e3),  
-    tv_Kd_TN  = log10(27.5e-6),
-    tv_kon_RN = log10(175e3), 
-    tv_Kd_RN  = log10(6.15e-6),
-    tv_kon_TC = log10(5.4e3), 
-    tv_Kd_TC  = log10(9.65e-6),
-    tv_kon_RC = log10(15e3), 
-    tv_Kd_RC  = log10(1.05e-6),
-    NN = init_params(Faas_scheme).NN, 
-###    tv_mα     = 0.0011,
-###    tv_α₀     = -0.39,
-    Ω         = ones(3),
-    σ_vec     = [1; 1; 1]
-);
-Pepke_M2_params = (;
-    tv_kon_2N = log10(175e3), 
-    tv_Kd_2N  = log10(6.15e-6),
-    tv_kon_2C = log10(15e3), 
-    tv_Kd_2C  = log10(1.05e-6),
-    NN = init_params(Pepke_m2_scheme).NN, 
-###    tv_mα     = 0.0011,
-###    tv_α₀     = -0.39,
-    Ω         = ones(3),
-    σ_vec     = [1; 1; 1]
-);
-Byrne_params = (;
-    tv_k01_N    = log10(275e3),
-    tv_K01d_N   = log10(33e-6),
-    tv_k02_N    = log10(275e3),
-    tv_K02d_N   = log10(229.88e-6),
-    tv_k13_N    = log10(507.2e3),
-    tv_K13d_N   = log10(3.45e-6),
-    tv_k23_N    = log10(500e3),
-###    tv_K23d_N   = log10(0.5e-6),
-    tv_k01_C    = log10(2.75e5),
-    tv_K01d_C   = log10(18.5e-6),
-    tv_k02_C    = log10(2.75e5),
-    tv_K02d_C   = log10(116e-6),
-    tv_k13_C    = log10(3.71e3),
-    tv_K13d_C   = log10(0.38e-6),
-    tv_k23_C    = log10(1.18e5),
-###    tv_K23d_C   = log10(0.06e-6),
-###    tv_mα       = 0.0011,
-###    tv_α₀       = -0.39,
-    NN = init_params(Byrne_scheme).NN, 
-    Ω           = ones(3),
-    σ_vec       = [1; 1; 1]
-)
 
 
 Blackwell_scheme = @model begin ### Simplest scheme
@@ -293,10 +169,15 @@ end;
 Pepke_m2_scheme = @model begin ### Simplest scheme with unique lobes
     @param begin
 
-        tv_kon_2C     ∈ Uniform(2,  12)
-        tv_Kd_2C      ∈ Uniform(-12, -2)
-        tv_kon_2N     ∈ Uniform(2,  12)
-        tv_Kd_2N      ∈ Uniform(-12, -2)
+        tv_kon_TN     ∈ Uniform(2, 12)
+        tv_Kd_TN      ∈ Uniform(-12, -2) 
+        tv_kon_RN     ∈ Uniform(2, 12)
+        tv_Kd_RN      ∈ Uniform(-12, -2)
+
+        tv_kon_TC     ∈ Uniform(2, 12)
+        tv_Kd_TC      ∈ Uniform(-12, -2)
+        tv_kon_RC     ∈ Uniform(2, 12)
+        tv_Kd_RC      ∈ Uniform(-12, -2)
 
         NN           ∈ MLPDomain(2, (1, sigmoid, true); act=tanh, reg=L1(1e-4))
 ###        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
@@ -341,14 +222,16 @@ Pepke_m2_scheme = @model begin ### Simplest scheme with unique lobes
 
         Fmax_Fmin = 39.364
 
-        f_frac   = cov_f_frac 
-        τ_f      = 1/cov_τ_f
-        τ_s      = 1/cov_τ_s
-        kon_DMn  = cov_kon_DMn
-        koff_DMn = cov_koff_DMn
-        Kd_DMn   = cov_Kd_DMn
-        kon_PP   = cov_kon_DMn
-        koff_PP  = cov_koff_PP
+        f_frac   = cov_f_frac   
+        τ_f      = 1/cov_τ_f    
+        τ_s      = 1/cov_τ_s    
+
+        kon_DMn  = cov_kon_DMn  
+        Kd_DMn   = cov_Kd_DMn   
+        koff_DMn = Kd_DMn * kon_DMn
+
+        kon_PP   = cov_kon_DMn  
+        koff_PP  = cov_koff_PP  
 
         DMn_t   = cov_DMn_t
         CaM_t   = cov_CaM_t
@@ -365,24 +248,40 @@ Pepke_m2_scheme = @model begin ### Simplest scheme with unique lobes
 
         Kd_Fluo4FF = 23e-6 ## https://pubmed.ncbi.nlm.nih.gov/29604967/
         kon_Fluo4FF  = 1 ## assumed it, it doesn't matter currently
-        koff_Fluo4FF = Kd_Fluo4FF * kon_Fluo4FF 
+        koff_Fluo4FF = Kd_Fluo4FF * kon_Fluo4FF  
 
-        Kd_2C  = 10^tv_Kd_2C
-        kon_2C = 10^tv_kon_2C
-        koff_2C= Kd_2C * kon_2C
+        Kd_TN    = 10^tv_Kd_TN 
+        kon_TN   = 10^tv_kon_TN
+        koff_TN  = Kd_TN * kon_TN 
 
-        Kd_2N  = 10^tv_Kd_2N
-        kon_2N = 10^tv_kon_2N
-        koff_2N= Kd_2N * kon_2N
+        Kd_RN    = 10^tv_Kd_RN 
+        kon_RN   = 10^tv_kon_RN
+        koff_RN  = Kd_RN * kon_RN 
+
+        Kd_TC    = 10^tv_Kd_TC 
+        kon_TC   = 10^tv_kon_TC
+        koff_TC  = Kd_TC * kon_TC 
+
+        Kd_RC    = 10^tv_Kd_RC 
+        kon_RC   = 10^tv_kon_RC
+        koff_RC  = Kd_RC * kon_RC 
+
 
         DMn₀     = (Kd_DMn * DMn_t)  / (Ca_free + Kd_DMn)
         CaDMn₀   = DMn_t - DMn₀
         OGB5₀    = (Kd_D   * OGB5_t) / (Ca_free + Kd_D)
         CaOGB5₀  = OGB5_t - OGB5₀
         Fluo4FF₀    = (Kd_Fluo4FF * Fluo4FF_t) / (Ca_free + Kd_Fluo4FF)
-        CaFluo4FF₀  = Fluo4FF_t - Fluo4FF₀    
+        CaFluo4FF₀  = Fluo4FF_t - Fluo4FF₀     
 
-        c0       = solve_Blackwell_CN_eqs(kon_2C, koff_2C, kon_2N, koff_2N, Ca_free, CaM_t, CaM_equil)
+        kon_2C₀  = (kon_TC * kon_RC)   / (koff_TC + kon_RC * Ca_free)
+        koff_2C₀ = (koff_TC * koff_RC) / (koff_TC + kon_RC * Ca_free)
+
+        kon_2N₀  = (kon_TN * kon_RN)   / (koff_TN + kon_RN * Ca_free)
+        koff_2N₀ = (koff_TN * koff_RN) / (koff_TN + kon_RN * Ca_free)
+
+
+        c0       = solve_Blackwell_CN_eqs(kon_2C₀, koff_2C₀, kon_2N₀, koff_2N₀, Ca_free, CaM_t, CaM_equil)
 
         DMn_s₀_u   = (1-f_frac) * DMn₀   * U# * 0
         CaDMn_s₀_u = (1-f_frac) * CaDMn₀ * U# * 0
@@ -406,6 +305,14 @@ Pepke_m2_scheme = @model begin ### Simplest scheme with unique lobes
         CaM2C    = c0[2]
         CaM2N    = c0[3]
         CaM4     = c0[4]
+    end
+
+    @vars begin
+        kon_2C  = (kon_TC * kon_RC)   / (koff_TC + kon_RC * Ca_free)
+        koff_2C = (koff_TC * koff_RC) / (koff_TC + kon_RC * Ca_free)
+
+        kon_2N  = (kon_TN * kon_RN)   / (koff_TN + kon_RN * Ca_free)
+        koff_2N = (koff_TN * koff_RN) / (koff_TN + kon_RN * Ca_free)
     end
 
     @dynamics begin
@@ -463,222 +370,222 @@ Pepke_m2_scheme = @model begin ### Simplest scheme with unique lobes
 end;
 
 
-Blackwell_scheme_TR = @model begin ### Simplest scheme with tense/relaxed
-    @param begin
-
-        tv_kon_1_T     ∈ Uniform(2,   12)
-        tv_Kd_1_T      ∈ Uniform(-12, -2)
-        tv_kon_2_T     ∈ Uniform(2,   12)
-        tv_Kd_2_T      ∈ Uniform(-12, -2)
-
-        tv_kon_1_R     ∈ Uniform(2,   12)
-        tv_Kd_1_R      ∈ Uniform(-12, -2)
-        tv_kon_2_R     ∈ Uniform(2,   12)
-        tv_Kd_2_R      ∈ Uniform(-12, -2)
-
-        tv_k_TR_0      ∈ Uniform(2,   12)
-        tv_Kd_0        ∈ Uniform(-12, -2)
-        tv_k_TR_2      ∈ Uniform(2,   12)
-        tv_Kd_2        ∈ Uniform(-12, -2)
-        tv_k_TR_4      ∈ Uniform(2,   12)
-        tv_Kd_4        ∈ Uniform(-12, -2)
-
-        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
-        tv_α₀         ∈ RealDomain(;              init = -0.39)
-
-        Ω             ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
-        σ_vec         ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
-
-    end
-
-    @random begin
-        η     ~ MvNormal(I(3) .* Ω)
-    end
-    
-    @covariates begin
-        cov_f_frac  
-        cov_τ_f  
-        cov_τ_s  
-        cov_kon_DMn  
-        cov_koff_DMn  
-        cov_Kd_DMn  
-        cov_koff_PP  
-        cov_DMn_t  
-        cov_CaM_t  
-        cov_OGB5_t  
-        cov_Ca_free
-        PCD
-        batch_id
-        cov_τ_decay
-        cov_Ca_i
-        CaM_equil
-        cov_Fluo4FF_t
-    end
-
-
-
-    @pre begin
-        σ         = σ_vec[batch_id]
-        ###U         = max(0.0, (tv_mα*PCD + tv_α₀) * (1 + η[batch_id]))
-###        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
-        pre_PCD   = (PCD - 431)/41
-        U         = NN([pre_PCD; η[batch_id]])[1]
-
-        Fmax_Fmin = 39.364
-
-        f_frac   = cov_f_frac 
-        τ_f      = 1/cov_τ_f
-        τ_s      = 1/cov_τ_s
-        kon_DMn  = cov_kon_DMn
-        koff_DMn = cov_koff_DMn
-        Kd_DMn   = cov_Kd_DMn
-        kon_PP   = cov_kon_DMn
-        koff_PP  = cov_koff_PP
-
-        DMn_t   = cov_DMn_t
-        CaM_t   = cov_CaM_t
-        OGB5_t  = cov_OGB5_t
-        Fluo4FF_t = cov_Fluo4FF_t
-        Ca_free = cov_Ca_free
-
-        τ_decay = cov_τ_decay
-        Ca_i    = cov_Ca_i
-
-        kon_D    = 8.77e5         ### in M^-1 ms^-1
-        koff_D   = 33.2          ### in ms^-1 
-        Kd_D     = koff_D / kon_D
-
-        Kd_Fluo4FF = 23e-6 ## https://pubmed.ncbi.nlm.nih.gov/29604967/
-        kon_Fluo4FF  = 1 ## assumed it, it doesn't matter currently
-        koff_Fluo4FF = Kd_Fluo4FF * kon_Fluo4FF 
-
-        Kd_1_T  = 10^tv_Kd_1_T
-        kon_1_T = 10^tv_kon_1_T
-        koff_1_T= Kd_1_T * kon_1_T
-
-        Kd_2_T  = 10^tv_Kd_2_T
-        kon_2_T = 10^tv_kon_2_T
-        koff_2_T= Kd_2_T * kon_2_T
-
-        Kd_1_R  = 10^tv_Kd_1_R
-        kon_1_R = 10^tv_kon_1_R
-        koff_1_R= Kd_1_R * kon_1_R
-
-        Kd_2_R  = 10^tv_Kd_2_R
-        kon_2_R = 10^tv_kon_2_R
-        koff_2_R= Kd_2_R * kon_2_R
-
-        Kd_0   = 10^tv_Kd_0
-        k_TR_0 = 10^tv_k_TR_0
-        k_RT_0 = Kd_0 * k_TR_0
-
-        Kd_2   = 10^tv_Kd_2
-        k_TR_2 = 10^tv_k_TR_2
-        k_RT_2 = Kd_2 * k_TR_2
-
-        Kd_4   = 10^tv_Kd_4
-        k_TR_4 = 10^tv_k_TR_4
-        k_RT_4 = Kd_4 * k_TR_4
-
-        DMn₀     = (Kd_DMn * DMn_t)  / (Ca_free + Kd_DMn)
-        CaDMn₀   = DMn_t - DMn₀
-        OGB5₀    = (Kd_D   * OGB5_t) / (Ca_free + Kd_D)
-        CaOGB5₀  = OGB5_t - OGB5₀
-        Fluo4FF₀    = (Kd_Fluo4FF * Fluo4FF_t) / (Ca_free + Kd_Fluo4FF)
-        CaFluo4FF₀  = Fluo4FF_t - Fluo4FF₀
-
-        c0       = solve_Blackwell_TR_eqs(kon_1_T, koff_1_T, kon_2_T, koff_2_T, 
-                                          kon_1_R, koff_1_R, kon_2_R, koff_2_R, 
-                                          k_TR_0, k_RT_0, k_TR_2, k_RT_2, k_TR_4, k_RT_4,
-                                          Ca_free, CaM_t, CaM_equil)
-
-        DMn_s₀_u   = (1-f_frac) * DMn₀   * U# * 0
-        CaDMn_s₀_u = (1-f_frac) * CaDMn₀ * U# * 0
-        DMn_f₀_u   =    f_frac  * DMn₀   * U# * 0
-        CaDMn_f₀_u =    f_frac  * CaDMn₀ * U# * 0
-    end
-
-    @init begin
-        Ca       = Ca_free
-        DMn_s    = DMn_s₀_u 
-        CaDMn_s  = CaDMn_s₀_u
-        DMn_f    = DMn_f₀_u
-        CaDMn_f  = CaDMn_f₀_u
-        PP       = 0.0
-        CaPP     = 0.0
-        OGB5     = OGB5₀
-        CaOGB5   = CaOGB5₀
-        Fluo4FF  = Fluo4FF₀
-        CaFluo4FF= CaFluo4FF₀
-        CaM0_R   = c0[1]
-        CaM2_R   = c0[2]
-        CaM4_R   = c0[3]
-        CaM0_T   = c0[4]
-        CaM2_T   = c0[5]
-        CaM4_T   = c0[6]
-    end
-
-    @dynamics begin
-        Ca'       = -kon_DMn * DMn_s * Ca + koff_DMn * CaDMn_s +
-                    -kon_DMn * DMn_f * Ca + koff_DMn * CaDMn_f +
-                    -kon_DMn * PP    * Ca + koff_PP  * CaPP    + 
-                    -kon_D   * OGB5  * Ca + koff_D   * CaOGB5  +
-                    -kon_Fluo4FF * Fluo4FF * Ca + koff_Fluo4FF * CaFluo4FF + 
-                    -kon_1_R * CaM0_R * Ca^2 + koff_1_R * CaM2_R + 
-                    -kon_2_R * CaM2_R * Ca^2 + koff_2_R * CaM4_R +
-                    -kon_1_T * CaM0_T * Ca^2 + koff_1_T * CaM2_T +
-                    -kon_2_T * CaM2_T * Ca^2 + koff_2_T * CaM4_T +
-                    -(Ca - Ca_i) * τ_decay
-        DMn_s'    = -kon_DMn * DMn_s * Ca + koff_DMn * CaDMn_s -   DMn_s * τ_s
-        CaDMn_s'  =  kon_DMn * DMn_s * Ca - koff_DMn * CaDMn_s - CaDMn_s * τ_s
-        DMn_f'    = -kon_DMn * DMn_f * Ca + koff_DMn * CaDMn_f -   DMn_f * τ_f
-        CaDMn_f'  =  kon_DMn * DMn_f * Ca - koff_DMn * CaDMn_f - CaDMn_f * τ_f
-        PP'       = -kon_PP  * PP    * Ca + koff_PP  * CaPP    +  2DMn_s * τ_s +  2DMn_f * τ_f + CaDMn_s * τ_s + CaDMn_f * τ_f
-        CaPP'     =  kon_PP  * PP    * Ca - koff_PP  * CaPP    + CaDMn_s * τ_s + CaDMn_f * τ_f
-        OGB5'     = -kon_D   * OGB5  * Ca + koff_D   * CaOGB5
-        CaOGB5'   =  kon_D   * OGB5  * Ca - koff_D   * CaOGB5
-        Fluo4FF'  = -kon_Fluo4FF   * Fluo4FF  * Ca + koff_Fluo4FF   * CaFluo4FF
-        CaFluo4FF'=  kon_Fluo4FF   * Fluo4FF  * Ca - koff_Fluo4FF   * CaFluo4FF
-        CaM0_R'   = -kon_1_R * CaM0_R * Ca^2 + koff_1_R * CaM2_R + 
-                    -k_RT_0  * CaM0_R + k_TR_0 * CaM0_T 
-        CaM2_R'   =  kon_1_R * CaM0_R * Ca^2 - koff_1_R * CaM2_R +
-                    -kon_2_R * CaM2_R * Ca^2 + koff_2_R * CaM4_R +
-                    -k_RT_2  * CaM2_R + k_TR_2 * CaM2_T 
-        CaM4_R'   =  kon_2_R * CaM2_R * Ca^2 - koff_2_R * CaM4_R +
-                    -k_RT_4  * CaM4_R + k_TR_4 * CaM4_T 
-        CaM0_T'   = -kon_1_T * CaM0_T * Ca^2 + koff_1_T * CaM2_T +
-                     k_RT_0  * CaM0_R - k_TR_0 * CaM0_T 
-        CaM2_T'   =  kon_1_T * CaM0_T * Ca^2 - koff_1_T * CaM2_T +
-                    -kon_2_T * CaM2_T * Ca^2 + koff_2_T * CaM4_T +
-                     k_RT_2  * CaM2_R - k_TR_2 * CaM2_T 
-        CaM4_T'   =  kon_2_T * CaM2_T * Ca^2 - koff_2_T * CaM4_T +
-                     k_RT_4  * CaM4_R - k_TR_4 * CaM4_T
-    end
-
-    @derived begin
-        F_F0 = @. Normal((OGB5 + Fmax_Fmin * CaOGB5) / (OGB5₀ + Fmax_Fmin * CaOGB5₀), σ)
-    end
-
-    @observed begin
-        DMn_s   = DMn_s
-        CaDMn_s = CaDMn_s
-        DMn_f   = DMn_f
-        CaDMn_f = CaDMn_f
-        PP      = PP
-        CaPP    = CaPP
-        OGB5    = OGB5
-        CaOGB5  = CaOGB5
-        Fluo4FF    = Fluo4FF
-        CaFluo4FF  = CaFluo4FF
-        CaM0_R  = CaM0_R
-        CaM2_R  = CaM2_R
-        CaM4_R  = CaM4_R
-        CaM0_T  = CaM0_T
-        CaM2_T  = CaM2_T
-        CaM4_T  = CaM4_T
-        Ca      = Ca
-    end
-end;
+###Blackwell_scheme_TR = @model begin ### Simplest scheme with tense/relaxed
+###    @param begin
+###
+###        tv_kon_1_T     ∈ Uniform(2,   12)
+###        tv_Kd_1_T      ∈ Uniform(-12, -2)
+###        tv_kon_2_T     ∈ Uniform(2,   12)
+###        tv_Kd_2_T      ∈ Uniform(-12, -2)
+###
+###        tv_kon_1_R     ∈ Uniform(2,   12)
+###        tv_Kd_1_R      ∈ Uniform(-12, -2)
+###        tv_kon_2_R     ∈ Uniform(2,   12)
+###        tv_Kd_2_R      ∈ Uniform(-12, -2)
+###
+###        tv_k_TR_0      ∈ Uniform(2,   12)
+###        tv_Kd_0        ∈ Uniform(-12, -2)
+###        tv_k_TR_2      ∈ Uniform(2,   12)
+###        tv_Kd_2        ∈ Uniform(-12, -2)
+###        tv_k_TR_4      ∈ Uniform(2,   12)
+###        tv_Kd_4        ∈ Uniform(-12, -2)
+###
+###        tv_mα         ∈ RealDomain(; lower=1e-10, init= 0.0011, upper=1)
+###        tv_α₀         ∈ RealDomain(;              init = -0.39)
+###
+###        Ω             ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
+###        σ_vec         ∈ VectorDomain(3; lower=1e-10, upper=3, init=1)
+###
+###    end
+###
+###    @random begin
+###        η     ~ MvNormal(I(3) .* Ω)
+###    end
+###    
+###    @covariates begin
+###        cov_f_frac  
+###        cov_τ_f  
+###        cov_τ_s  
+###        cov_kon_DMn  
+###        cov_koff_DMn  
+###        cov_Kd_DMn  
+###        cov_koff_PP  
+###        cov_DMn_t  
+###        cov_CaM_t  
+###        cov_OGB5_t  
+###        cov_Ca_free
+###        PCD
+###        batch_id
+###        cov_τ_decay
+###        cov_Ca_i
+###        CaM_equil
+###        cov_Fluo4FF_t
+###    end
+###
+###
+###
+###    @pre begin
+###        σ         = σ_vec[batch_id]
+###        ###U         = max(0.0, (tv_mα*PCD + tv_α₀) * (1 + η[batch_id]))
+######        U         = (tv_mα*PCD + tv_α₀) * (1 + η[batch_id])
+###        pre_PCD   = (PCD - 431)/41
+###        U         = NN([pre_PCD; η[batch_id]])[1]
+###
+###        Fmax_Fmin = 39.364
+###
+###        f_frac   = cov_f_frac 
+###        τ_f      = 1/cov_τ_f
+###        τ_s      = 1/cov_τ_s
+###        kon_DMn  = cov_kon_DMn
+###        koff_DMn = cov_koff_DMn
+###        Kd_DMn   = cov_Kd_DMn
+###        kon_PP   = cov_kon_DMn
+###        koff_PP  = cov_koff_PP
+###
+###        DMn_t   = cov_DMn_t
+###        CaM_t   = cov_CaM_t
+###        OGB5_t  = cov_OGB5_t
+###        Fluo4FF_t = cov_Fluo4FF_t
+###        Ca_free = cov_Ca_free
+###
+###        τ_decay = cov_τ_decay
+###        Ca_i    = cov_Ca_i
+###
+###        kon_D    = 8.77e5         ### in M^-1 ms^-1
+###        koff_D   = 33.2          ### in ms^-1 
+###        Kd_D     = koff_D / kon_D
+###
+###        Kd_Fluo4FF = 23e-6 ## https://pubmed.ncbi.nlm.nih.gov/29604967/
+###        kon_Fluo4FF  = 1 ## assumed it, it doesn't matter currently
+###        koff_Fluo4FF = Kd_Fluo4FF * kon_Fluo4FF 
+###
+###        Kd_1_T  = 10^tv_Kd_1_T
+###        kon_1_T = 10^tv_kon_1_T
+###        koff_1_T= Kd_1_T * kon_1_T
+###
+###        Kd_2_T  = 10^tv_Kd_2_T
+###        kon_2_T = 10^tv_kon_2_T
+###        koff_2_T= Kd_2_T * kon_2_T
+###
+###        Kd_1_R  = 10^tv_Kd_1_R
+###        kon_1_R = 10^tv_kon_1_R
+###        koff_1_R= Kd_1_R * kon_1_R
+###
+###        Kd_2_R  = 10^tv_Kd_2_R
+###        kon_2_R = 10^tv_kon_2_R
+###        koff_2_R= Kd_2_R * kon_2_R
+###
+###        Kd_0   = 10^tv_Kd_0
+###        k_TR_0 = 10^tv_k_TR_0
+###        k_RT_0 = Kd_0 * k_TR_0
+###
+###        Kd_2   = 10^tv_Kd_2
+###        k_TR_2 = 10^tv_k_TR_2
+###        k_RT_2 = Kd_2 * k_TR_2
+###
+###        Kd_4   = 10^tv_Kd_4
+###        k_TR_4 = 10^tv_k_TR_4
+###        k_RT_4 = Kd_4 * k_TR_4
+###
+###        DMn₀     = (Kd_DMn * DMn_t)  / (Ca_free + Kd_DMn)
+###        CaDMn₀   = DMn_t - DMn₀
+###        OGB5₀    = (Kd_D   * OGB5_t) / (Ca_free + Kd_D)
+###        CaOGB5₀  = OGB5_t - OGB5₀
+###        Fluo4FF₀    = (Kd_Fluo4FF * Fluo4FF_t) / (Ca_free + Kd_Fluo4FF)
+###        CaFluo4FF₀  = Fluo4FF_t - Fluo4FF₀
+###
+###        c0       = solve_Blackwell_TR_eqs(kon_1_T, koff_1_T, kon_2_T, koff_2_T, 
+###                                          kon_1_R, koff_1_R, kon_2_R, koff_2_R, 
+###                                          k_TR_0, k_RT_0, k_TR_2, k_RT_2, k_TR_4, k_RT_4,
+###                                          Ca_free, CaM_t, CaM_equil)
+###
+###        DMn_s₀_u   = (1-f_frac) * DMn₀   * U# * 0
+###        CaDMn_s₀_u = (1-f_frac) * CaDMn₀ * U# * 0
+###        DMn_f₀_u   =    f_frac  * DMn₀   * U# * 0
+###        CaDMn_f₀_u =    f_frac  * CaDMn₀ * U# * 0
+###    end
+###
+###    @init begin
+###        Ca       = Ca_free
+###        DMn_s    = DMn_s₀_u 
+###        CaDMn_s  = CaDMn_s₀_u
+###        DMn_f    = DMn_f₀_u
+###        CaDMn_f  = CaDMn_f₀_u
+###        PP       = 0.0
+###        CaPP     = 0.0
+###        OGB5     = OGB5₀
+###        CaOGB5   = CaOGB5₀
+###        Fluo4FF  = Fluo4FF₀
+###        CaFluo4FF= CaFluo4FF₀
+###        CaM0_R   = c0[1]
+###        CaM2_R   = c0[2]
+###        CaM4_R   = c0[3]
+###        CaM0_T   = c0[4]
+###        CaM2_T   = c0[5]
+###        CaM4_T   = c0[6]
+###    end
+###
+###    @dynamics begin
+###        Ca'       = -kon_DMn * DMn_s * Ca + koff_DMn * CaDMn_s +
+###                    -kon_DMn * DMn_f * Ca + koff_DMn * CaDMn_f +
+###                    -kon_DMn * PP    * Ca + koff_PP  * CaPP    + 
+###                    -kon_D   * OGB5  * Ca + koff_D   * CaOGB5  +
+###                    -kon_Fluo4FF * Fluo4FF * Ca + koff_Fluo4FF * CaFluo4FF + 
+###                    -kon_1_R * CaM0_R * Ca^2 + koff_1_R * CaM2_R + 
+###                    -kon_2_R * CaM2_R * Ca^2 + koff_2_R * CaM4_R +
+###                    -kon_1_T * CaM0_T * Ca^2 + koff_1_T * CaM2_T +
+###                    -kon_2_T * CaM2_T * Ca^2 + koff_2_T * CaM4_T +
+###                    -(Ca - Ca_i) * τ_decay
+###        DMn_s'    = -kon_DMn * DMn_s * Ca + koff_DMn * CaDMn_s -   DMn_s * τ_s
+###        CaDMn_s'  =  kon_DMn * DMn_s * Ca - koff_DMn * CaDMn_s - CaDMn_s * τ_s
+###        DMn_f'    = -kon_DMn * DMn_f * Ca + koff_DMn * CaDMn_f -   DMn_f * τ_f
+###        CaDMn_f'  =  kon_DMn * DMn_f * Ca - koff_DMn * CaDMn_f - CaDMn_f * τ_f
+###        PP'       = -kon_PP  * PP    * Ca + koff_PP  * CaPP    +  2DMn_s * τ_s +  2DMn_f * τ_f + CaDMn_s * τ_s + CaDMn_f * τ_f
+###        CaPP'     =  kon_PP  * PP    * Ca - koff_PP  * CaPP    + CaDMn_s * τ_s + CaDMn_f * τ_f
+###        OGB5'     = -kon_D   * OGB5  * Ca + koff_D   * CaOGB5
+###        CaOGB5'   =  kon_D   * OGB5  * Ca - koff_D   * CaOGB5
+###        Fluo4FF'  = -kon_Fluo4FF   * Fluo4FF  * Ca + koff_Fluo4FF   * CaFluo4FF
+###        CaFluo4FF'=  kon_Fluo4FF   * Fluo4FF  * Ca - koff_Fluo4FF   * CaFluo4FF
+###        CaM0_R'   = -kon_1_R * CaM0_R * Ca^2 + koff_1_R * CaM2_R + 
+###                    -k_RT_0  * CaM0_R + k_TR_0 * CaM0_T 
+###        CaM2_R'   =  kon_1_R * CaM0_R * Ca^2 - koff_1_R * CaM2_R +
+###                    -kon_2_R * CaM2_R * Ca^2 + koff_2_R * CaM4_R +
+###                    -k_RT_2  * CaM2_R + k_TR_2 * CaM2_T 
+###        CaM4_R'   =  kon_2_R * CaM2_R * Ca^2 - koff_2_R * CaM4_R +
+###                    -k_RT_4  * CaM4_R + k_TR_4 * CaM4_T 
+###        CaM0_T'   = -kon_1_T * CaM0_T * Ca^2 + koff_1_T * CaM2_T +
+###                     k_RT_0  * CaM0_R - k_TR_0 * CaM0_T 
+###        CaM2_T'   =  kon_1_T * CaM0_T * Ca^2 - koff_1_T * CaM2_T +
+###                    -kon_2_T * CaM2_T * Ca^2 + koff_2_T * CaM4_T +
+###                     k_RT_2  * CaM2_R - k_TR_2 * CaM2_T 
+###        CaM4_T'   =  kon_2_T * CaM2_T * Ca^2 - koff_2_T * CaM4_T +
+###                     k_RT_4  * CaM4_R - k_TR_4 * CaM4_T
+###    end
+###
+###    @derived begin
+###        F_F0 = @. Normal((OGB5 + Fmax_Fmin * CaOGB5) / (OGB5₀ + Fmax_Fmin * CaOGB5₀), σ)
+###    end
+###
+###    @observed begin
+###        DMn_s   = DMn_s
+###        CaDMn_s = CaDMn_s
+###        DMn_f   = DMn_f
+###        CaDMn_f = CaDMn_f
+###        PP      = PP
+###        CaPP    = CaPP
+###        OGB5    = OGB5
+###        CaOGB5  = CaOGB5
+###        Fluo4FF    = Fluo4FF
+###        CaFluo4FF  = CaFluo4FF
+###        CaM0_R  = CaM0_R
+###        CaM2_R  = CaM2_R
+###        CaM4_R  = CaM4_R
+###        CaM0_T  = CaM0_T
+###        CaM2_T  = CaM2_T
+###        CaM4_T  = CaM4_T
+###        Ca      = Ca
+###    end
+###end;
 
 
 
@@ -1109,3 +1016,130 @@ Byrne_scheme = @model begin ### Byrne scheme
     end
 
 end;
+
+
+Blackwell_const_names = (
+    :tv_kon_1,
+    :tv_Kd_1,
+    :tv_kon_2,
+    :tv_Kd_2,
+#    :tv_mα,
+#    :tv_α₀
+)
+Pepke_M2_const_names = (
+    :tv_kon_2N, 
+    :tv_Kd_2N,
+    :tv_kon_2C, 
+    :tv_Kd_2C,
+#    :tv_mα,
+#    :tv_α₀
+);
+Faas_const_names = (
+    :tv_kon_TN,
+    :tv_Kd_TN,
+    :tv_kon_RN,
+    :tv_Kd_RN,
+    :tv_kon_TC,
+    :tv_Kd_TC,
+    :tv_kon_RC,
+    :tv_Kd_RC,
+#    :tv_mα,
+#    :tv_α₀
+);
+Byrne_const_names = (
+    :tv_k01_N,
+    :tv_K01d_N,
+    :tv_k02_N,
+    :tv_K02d_N,
+    :tv_k13_N,
+    :tv_K13d_N,
+    :tv_k23_N,
+###    :tv_K23d_N,
+    :tv_k01_C,
+    :tv_K01d_C,
+    :tv_k02_C,
+    :tv_K02d_C,
+    :tv_k13_C,
+    :tv_K13d_C,
+    :tv_k23_C,
+###    :tv_K23d_C,
+#    :tv_mα,
+#    :tv_α₀
+)
+
+
+Blackwell_params = (;
+    tv_kon_1 = 3.78,
+    tv_Kd_1  = -6.77,
+    tv_kon_2 = 5.0,
+    tv_Kd_2  = -4.0,
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
+    NN = init_params(Blackwell_scheme).NN, 
+    Ω         = ones(3),
+    σ_vec     = [1; 1; 1]
+)
+Faas_params = (;
+    tv_kon_TN = 5.9,  
+    tv_Kd_TN  = -3.7,
+    tv_kon_RN = 7.5, 
+    tv_Kd_RN  = -6.1,
+    tv_kon_TC = 4.9, 
+    tv_Kd_TC  = -4.6,
+    tv_kon_RC = 4.4, 
+    tv_Kd_RC  = -6.6,
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
+    NN = init_params(Faas_scheme).NN, 
+    Ω         = ones(3),
+    σ_vec     = [1; 1; 1]
+);
+Pepke_M1_params = (;     ###https://www.ebi.ac.uk/biomodels/MODEL1001150000
+    tv_kon_TN = log10(100e3),  
+    tv_Kd_TN  = log10(25e-6),
+    tv_kon_RN = log10(150e3), 
+    tv_Kd_RN  = log10(5e-6),
+    tv_kon_TC = log10(4e3), 
+    tv_Kd_TC  = log10(10e-6),
+    tv_kon_RC = log10(10e3), 
+    tv_Kd_RC  = log10(0.925e-6),
+    NN = init_params(Faas_scheme).NN, 
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
+    Ω         = ones(3),
+    σ_vec     = [1; 1; 1]
+);
+Pepke_M2_params = (;
+    tv_kon_2N = log10(175e3), 
+    tv_Kd_2N  = log10(6.15e-6),
+    tv_kon_2C = log10(15e3), 
+    tv_Kd_2C  = log10(1.05e-6),
+    NN = init_params(Pepke_m2_scheme).NN, 
+###    tv_mα     = 0.0011,
+###    tv_α₀     = -0.39,
+    Ω         = ones(3),
+    σ_vec     = [1; 1; 1]
+);
+Byrne_params = (;
+    tv_k01_N    = log10(275e3),
+    tv_K01d_N   = log10(33e-6),
+    tv_k02_N    = log10(275e3),
+    tv_K02d_N   = log10(229.88e-6),
+    tv_k13_N    = log10(507.2e3),
+    tv_K13d_N   = log10(3.45e-6),
+    tv_k23_N    = log10(500e3),
+###    tv_K23d_N   = log10(0.5e-6),
+    tv_k01_C    = log10(2.75e5),
+    tv_K01d_C   = log10(18.5e-6),
+    tv_k02_C    = log10(2.75e5),
+    tv_K02d_C   = log10(116e-6),
+    tv_k13_C    = log10(3.71e3),
+    tv_K13d_C   = log10(0.38e-6),
+    tv_k23_C    = log10(1.18e5),
+###    tv_K23d_C   = log10(0.06e-6),
+###    tv_mα       = 0.0011,
+###    tv_α₀       = -0.39,
+    NN = init_params(Byrne_scheme).NN, 
+    Ω           = ones(3),
+    σ_vec       = [1; 1; 1]
+)

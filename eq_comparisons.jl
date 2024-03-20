@@ -155,42 +155,45 @@ end
 
 
 function plot_CaM_eqs(ca_range, CaM_tup; i=1, j=1, 
-        xlabel = L"$\textrm{Ca}^{2+}_{\textrm{Free}}$",
-        ylabel = L"Bound $\textrm{Ca}^{2+}$ per CaM",
-        title="Scheme 1", color=:red, label="Our rates", 
-        f=nothing, new_axis=false, figsize=(800, 600), limits=(0, 1, 0, 1))
+    ###xlabel = L"$\textrm{Ca}^{2+}_{\textrm{Free}}$",
+    xlabel = "Free Ca²⁺ (M)",
+    ylabel = L"Bound $\textrm{Ca}^{2+}$ per CaM",
+    title="Scheme 1", color=:red, label="Our rates", 
+    f=nothing, new_axis=false, figsize=(800, 600), limits=(0, 1, 0, 1))
 
-    ca_per_cam_all = CaM_tup[2] .+ CaM_tup[3]
+if f === nothing
+    f = CairoMakie.Figure(size=figsize, fontsize=8)
+    ax = CairoMakie.Axis(f[i, j], 
+        xticklabelsize=8, yticklabelsize=8,
+        xscale=log10
+        )
+elseif new_axis
+    ax = CairoMakie.Axis(f[i, j], limits=limits, 
+        xticklabelsize=8, yticklabelsize=8,
+        xscale=log10
+        )
+else
+    ax = f.content[end]
+end
 
-    if f === nothing
-        f = CairoMakie.Figure(size=figsize, fontsize=10)
-        ax = CairoMakie.Axis(f[i, j], limits=limits, 
-            xticklabelsize=8, yticklabelsize=8)
-    elseif new_axis
-        ax = CairoMakie.Axis(f[i, j], limits=limits, 
-            xticklabelsize=8, yticklabelsize=8)
-    else
-        ax = f.content[end]
-    end
-
-    if ylabel !== nothing
-        ax.ylabel = ylabel
+if ylabel !== nothing
+    ax.ylabel = ylabel
 ###        ax.ylabelsize = 8
-    end
-    if xlabel !== nothing
-        ax.xlabel = xlabel
+end
+if xlabel !== nothing
+    ax.xlabel = xlabel
 ###        ax.xlabelsize = 8
-    end
+end
 
 ###    Plots.plot!(ca_range, CaM0_m, line=:dash,     lw=3, color=color, label=label*" CaM0" )
 ###    Plots.plot!(ca_range, CaMp_m, line=:dashdot,  lw=3, color=color, label=label*" CaM partial" )
 ###    Plots.plot!(ca_range, CaMf_m, line=:solid,    lw=3, color=color, label=label*" CaM full" )
 
-    for ca_per_cam in ca_per_cam_all
-        CairoMakie.lines!(ax, ca_range, ca_per_cam, linewidth=3, color=color, label=label)
-    end
-    
-    return f, ax 
+for (c_n, c_4) in zip(CaM_tup[2], CaM_tup[3])
+    CairoMakie.lines!(ax, ca_range, c_n + c_4, linewidth=2, color=color, label=label)
+end
+
+return f, ax 
 end
 
 
@@ -283,7 +286,11 @@ end
 
 
 
-function get_param_lists(fpms, symbols)
+function get_param_lists(fpms, symbols; 
+    sort=false, 
+    sort_C_names=nothing,
+    sort_N_names=nothing,
+    counternames=nothing)
 
     params = []
 
@@ -302,25 +309,118 @@ function get_param_lists(fpms, symbols)
         push!(params, p_s)
     end
 
-    return NamedTuple{symbols}(params)
+    nt = NamedTuple{symbols}(params)
 
-end
-
-function plot_params_ax(f, i, j, xs, ys, xlab, ylab, cs, names;
-    lims = (0, 1, 0, 1), ylabs=true, yticks=true)
+    if sort
+        kd_c = nt[sort_C_names.off] ./ nt[sort_C_names.on]
+        kd_n = nt[sort_N_names.off] ./ nt[sort_N_names.on]
         
+        repl_idx = kd_c .> kd_n
 
-    ax = CairoMakie.Axis(f[i,j], xlabel=xlab, ylabel=ylab, xscale=log10, yscale=log10,
-        limits = lims, yticklabelsvisible=ylabs, yticksvisible=yticks,
-        xticks=([lims[1], lims[2]], [string(log10(lims[1])), string(log10(lims[2]))]), 
-        yticks=([lims[3], lims[4]], [string(log10(lims[3])), string(log10(lims[4]))])
-    )
+        d = Dict()
 
-    for i in 1:length(xs)
-        CairoMakie.scatter!(ax, xs[i], ys[i], 
-            markersize=msize, color=cs[i], label=names[i])
+        for (n_i, n_j) in counternames
+            temp_n_i = nt[n_i]
+            temp_n_j = nt[n_j]
+
+            i_to_j = temp_n_i[repl_idx]
+            j_to_i = temp_n_j[repl_idx]
+
+            temp_n_i[repl_idx] .= j_to_i
+            temp_n_j[repl_idx] .= i_to_j
+
+            d[n_i] = temp_n_i
+            d[n_j] = temp_n_j
+        end
+
+        ret_nt = NamedTuple(d)
+    else
+        ret_nt = nt
     end
 
-    return f
+    return ret_nt
+end
 
+function pair_plots(all_params, par_names, cs, names;
+    lims = (0, 1, 0, 1),
+    ms=10, 
+    fig_w=17 * 28.3465,
+    fig_h=23 * 28.3465,
+    xvis = true,
+    yvis = false,
+    rot_xlab = 0
+    )
+
+    used_names = []    
+
+    f = CairoMakie.Figure(size=(fig_w, fig_h), fontsize=8)
+
+    for n_i in keys(all_params[1])
+        push!(used_names, n_i)
+
+        col_ctr=1
+
+        for n_j in setdiff(keys(all_params[1]), used_names)[end:-1:1]
+
+            ax = CairoMakie.Axis(f[length(used_names),col_ctr], 
+                xlabel=par_names[n_j], 
+                ylabel=par_names[n_i], 
+                xscale=log10, yscale=log10,
+                limits = lims, #yticklabelsvisible=ylabs, yticksvisible=yticks,
+                #xticks=([lims[1], lims[2]], [string(log10(lims[1])), string(log10(lims[2]))]), 
+                #yticks=([lims[3], lims[4]], [string(log10(lims[3])), string(log10(lims[4]))])
+            )
+
+
+            for i in 1:length(all_params)
+
+                xs = all_params[i][n_j]
+                ys = all_params[i][n_i]
+
+                CairoMakie.scatter!(ax, xs, ys, 
+                    markersize=ms, color=cs[i], label=names[i])
+            end
+
+            ax.xtickformat = values -> ["$(log10(value))" for value in values]
+            ax.ytickformat = values -> ["$(log10(value))" for value in values]
+            ax.xticklabelrotation = rot_xlab
+            ax.xlabelsize = 8
+            ax.ylabelsize = 8
+
+            if col_ctr == 1 && (length(used_names) == (length(par_names) - 1))
+                ax.xticklabelsvisible = true
+                ax.xticksvisible = true
+                ax.xlabelvisible = true
+                ax.yticklabelsvisible = true
+                ax.yticksvisible = true
+                ax.ylabelvisible = true
+            elseif (length(used_names) + col_ctr) == length(par_names)
+                ax.xticklabelsvisible = true
+                ax.xticksvisible = true 
+                ax.xlabelvisible = true 
+                ax.yticklabelsvisible = false
+                ax.yticksvisible = false 
+                ax.ylabelvisible = false
+            elseif col_ctr == 1 
+                ax.xticklabelsvisible = false
+                ax.xticksvisible = false
+                ax.xlabelvisible = false
+                ax.yticklabelsvisible = true
+                ax.yticksvisible = true
+                ax.ylabelvisible = true
+            else 
+                ax.xticklabelsvisible = false
+                ax.xticksvisible = false 
+                ax.xlabelvisible = false
+                ax.yticklabelsvisible = false
+                ax.yticksvisible = false
+                ax.ylabelvisible = false
+
+            end
+
+            col_ctr += 1
+
+        end
+    end
+    return f
 end

@@ -19,8 +19,8 @@ function model_setup(model_type)
 
     elseif model_type == "Pepke_m2_fixed"
         model = Pepke_m2_scheme 
-        init_p = Pepke_M2_params
-        constantcoefs = Pepke_M2_const_names
+        init_p = Pepke_M1_params
+        constantcoefs = Faas_const_names
 
     elseif model_type == "Blackwell_TR"
         model = Blackwell_scheme_TR
@@ -234,10 +234,10 @@ end
 
 function my_aic(fpm::Pumas.AbstractFittedPumasModel; pop=nothing)
     if pop == nothing
-        return 2*length(coef(fpm)) - 2*loglikelihood(fpm)
+        return 2*(length(reduce(vcat, coef(fpm))) - 1 + length(coef(fpm).NN.param)) - 2*loglikelihood(fpm)
     else
         ll = loglikelihood(fpm.model, pop, coef(fpm), LaplaceI(), diffeq_options=(;alg=Rodas5P(), abstol=1e-16))
-        return 2*length(coef(fpm)) - 2*ll
+        return 2*(length(reduce(vcat, coef(fpm))) - 1 + length(coef(fpm).NN.param)) - 2*ll
     end
 end
 
@@ -313,8 +313,8 @@ function train_plot(model_type,
         fpm_i = fit(model, 
         sub_pop[train_idx], 
         init_p, 
-        ###alg(), 
-        MAP(FOCE()), 
+        alg(), 
+        ###MAP(FOCE()), 
         optim_options=optim_options,
         diffeq_options=diffeq_options,
         constantcoef=constantcoefs
@@ -578,15 +578,15 @@ function plot_exp_data(groups; figsize=(800, 600), ylim=[0, 15], lw=2)
 
 
 
-    f = CairoMakie.Figure(size=figsize, fontsize=12)
+    f = CairoMakie.Figure(size=figsize, fontsize=8)
 
     ax1 = CairoMakie.Axis(f[1,1], 
-        ylabel=L"\frac{\Delta F}{F_0}", 
+        ylabel="ΔF/F₀", 
         title="Group A", 
         limits = (-3, 43, ylim[1], ylim[2]), 
         yticklabelsize=8, 
         xticklabelsize=8,
-        protrusions=0)
+        )
     for i in groups[1]
         CairoMakie.lines!(ax1, i.time, i.observations.F_F0, color="black", linewidth=lw)
     end
@@ -608,7 +608,7 @@ end
 
 
 
-function bigplot(fpms, pop; 
+function bigplot(fpms, pop, colors, rowslist; 
     names=nothing, figsize=(800, 600))
 
     plots = []
@@ -622,7 +622,7 @@ function bigplot(fpms, pop;
                       "#1107_WTd"=>"Group G",
     )
 
-    f = CairoMakie.Figure(size=figsize, fontsize=12)
+    f = CairoMakie.Figure(size=figsize, fontsize=8)
 
     for i in 1:length(fpms)
 
@@ -636,13 +636,27 @@ function bigplot(fpms, pop;
                 title_i = splits[1] * "_" * splits[2]
                 title_i = title_dict[title_i]
 
-                ax = CairoMakie.Axis(f[i, j])
-                hidedecorations!(ax)
-                hidespines!(ax)
-
-                if length(f.content) in 1:6
-                    ax.title=title_i
-                    ax.titlesize=8
+                ax = CairoMakie.Axis(f[rowslist[i], j], 
+                    limits=(nothing, 55, nothing, nothing))
+                if i == 9
+                    if j == 1
+                        hidedecorations!(ax, ticks=false, ticklabels=false)
+                        ax.xticksize=4
+                        ax.yticksize=4
+                        ax.xticks = [0, 35]
+                        ax.yticks = [0, 5]
+                    else
+                        hidedecorations!(ax, ticks=false, ticklabels=false)
+                        ax.xticksize=4
+                        ax.yticksize=4
+                        ax.xticks = [0, 35]
+                        ax.yticks = [0, 5]
+                        ax.yticklabelsvisible = false
+                    end
+                    hidespines!(ax, :t, :r)
+                else
+                    hidedecorations!(ax)
+                    hidespines!(ax)
                 end
 
 
@@ -655,9 +669,8 @@ function bigplot(fpms, pop;
                 d = zip(pre[1], sims[1])
                 for (pre,sim) in d
                     pred = (sim.dynamics.OGB5 + 39.364 * sim.dynamics.CaOGB5) / (pre.OGB5₀ + 39.364 * pre.CaOGB5₀)
-                    lines!(ax, sim.time, pred, color="red", linewidth=1)
+                    lines!(ax, sim.time, pred, color=colors[i], linewidth=1, label=names[i])
                 end
-
 
             elseif j == length(pop)+1
 ##                ax = CairoMakie.Axis(f[i, j])
@@ -667,16 +680,71 @@ function bigplot(fpms, pop;
         end
     end
 
-    for i in 1:length(fpms) 
-        CairoMakie.Label(f[i,7], names[i], fontsize=8)
-    end
+###    for i in 1:length(fpms) 
+###        CairoMakie.Label(f[i,7], names[i], fontsize=8)
+###    end
 
-    CairoMakie.Label(f[:,0], L"\frac{\Delta F}{F_0}", rotation=pi/2)
-    CairoMakie.Label(f[length(fpms)+1,:], "Time (ms)")
+    ###CairoMakie.Label(f[:,0], L"\frac{\Delta F}{F_0}", rotation=pi/2, fontsize=8)
+    CairoMakie.Label(f[:,0], "ΔF/F₀", rotation=pi/2, fontsize=8)
+    CairoMakie.Label(f[rowslist[end]+1,:], "Time (ms)", fontsize=8)
 
-    for i in 1:length(fpms)
-        rowsize!(f.layout, i, Relative(1/length(fpms)))
-    end
+    CairoMakie.Label(f[0,1], "Group A", fontsize=8, font=:bold)
+    CairoMakie.Label(f[0,2], "Group B", fontsize=8, font=:bold)
+    CairoMakie.Label(f[0,3], "Group D", fontsize=8, font=:bold)
+    CairoMakie.Label(f[0,4], "Group E", fontsize=8, font=:bold)
+    CairoMakie.Label(f[0,5], "Group F", fontsize=8, font=:bold)
+    CairoMakie.Label(f[0,6], "Group G", fontsize=8, font=:bold)
 
+    CairoMakie.text!(f.content[1], 37.5, 6.5, text = "PCD (in μs)", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[1], 45, 4.5, text = "450", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[1], 45, 2.5, text = "410", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[1], 45, 1.5, text = "380", 
+        align = (:center, :center), fontsize=8)
+    
+    CairoMakie.text!(f.content[2], 47, 5.5, text = "460", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[2], 47, 8.5, text = "480", 
+        align = (:center, :center), fontsize=8)
+    
+    CairoMakie.text!(f.content[3], 47, 1.25, text = "360", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[3], 47, 3.15, text = "390", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[3], 47, 5.0, text = "440", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[3], 47, 7.0, text = "460", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[3], 47, 9.0, text = "500", 
+        align = (:center, :center), fontsize=8)
+    
+    CairoMakie.text!(f.content[4], 47, 1.75, text = "390", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[4], 47, 3.5, text = "420", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[4], 47, 5.0, text = "430", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[4], 47, 7.0, text = "460", 
+        align = (:center, :center), fontsize=8)
+    
+    CairoMakie.text!(f.content[5], 47, 1.15, text = "360", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[5], 47, 3.4, text = "380", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[5], 47, 10.0, text = "460", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[5], 47, 13.5, text = "480", 
+        align = (:center, :center), fontsize=8)
+    
+    CairoMakie.text!(f.content[6], 47, 1.0, text = "370", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[6], 47, 3.5, text = "390", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[6], 47, 6.0, text = "420", 
+        align = (:center, :center), fontsize=8)
+    CairoMakie.text!(f.content[6], 47, 16.0, text = "460", 
+        align = (:center, :center), fontsize=8)
     return f
 end

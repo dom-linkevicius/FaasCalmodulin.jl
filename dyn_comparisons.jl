@@ -195,7 +195,7 @@ function plot_CaM_dyns(t, CaM_tup;
     CaMf_m = hcat(CaM_tup[3]) * 1e6
  
     if f === nothing
-        f = CairoMakie.Figure(size=figsize, fontsize=10)
+        f = CairoMakie.Figure(size=figsize, fontsize=8)
     end
 
 
@@ -203,33 +203,37 @@ function plot_CaM_dyns(t, CaM_tup;
 ###    Plots.plot!(t, CaMp_m, alpha=0.60, lw=3, color=color, label=label*" CaM partial" )
 ###    Plots.plot!(t, CaMf_m, alpha=1.00, lw=3, color=color, label=label*" CaM full" )
 
-    ax1 = CairoMakie.Axis(f[1, j], limits=limits, titlesize=6, #, titlealign=:left,
-        title=title, xticks=[0, 1000],
-        xticklabelsize=8, yticklabelsize=8,
-        yticklabelsvisible=ylabs, yticksvisible=yticks,
-        xticklabelsvisible=false, xticksvisible=false)
-##    hidedecorations!(ax1, ticklabels=false)
-    hidespines!(ax1, :t, :r)
-    for l in CaM0_m
-        CairoMakie.lines!(ax1, t, l, linewidth=lw, color=color)
-    end
-
-    ax2 = CairoMakie.Axis(f[2, j], limits=limits,
+    ax1 = CairoMakie.Axis(f[2, j], limits=limits, titlesize=8, #, titlealign=:left,
+        ###title=title, xticks=[0, 1000],
         xticks=[0, 1000],
         xticklabelsize=8, yticklabelsize=8,
         yticklabelsvisible=ylabs, yticksvisible=yticks,
-        xticklabelsvisible=false, xticksvisible=false)
+        xticklabelsvisible=false, xticksvisible=false,
+        xgridvisible=false, xticksize=3)
+##    hidedecorations!(ax1, ticklabels=false)
+    hidespines!(ax1, :t, :r)
+    for l in CaM0_m
+        CairoMakie.lines!(ax1, t, l, linewidth=lw, color=color, label=title)
+    end
+
+    ax2 = CairoMakie.Axis(f[3, j], limits=limits,
+        xticks=[0, 1000],
+        xticklabelsize=8, yticklabelsize=8,
+        yticklabelsvisible=ylabs, yticksvisible=yticks,
+        xticklabelsvisible=false, xticksvisible=false,
+        xgridvisible=false, xticksize=3)
 ##    hidedecorations!(ax2, ticks=false)
     hidespines!(ax2, :t, :r)
     for l in CaMp_m
         CairoMakie.lines!(ax2, t, l, linewidth=lw, color=color)
     end
 
-    ax3 = CairoMakie.Axis(f[3, j], limits=limits,
+    ax3 = CairoMakie.Axis(f[4, j], limits=limits,
         xticks=[0, 1000],
         xticklabelsize=8, yticklabelsize=8,
         yticklabelsvisible=ylabs, yticksvisible=yticks,
-        xticklabelsvisible=xlabs, xticksvisible=xticks)
+        xticklabelsvisible=xlabs, xticksvisible=xticks,
+        xgridvisible=false, xticksize=3)
 ##    hidedecorations!(ax3, ticks=false)
     hidespines!(ax3, :t, :r)
     for l in CaMf_m
@@ -238,7 +242,3 @@ function plot_CaM_dyns(t, CaM_tup;
 
     return f
 end
-
-
-
-
