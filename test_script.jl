@@ -6,6 +6,23 @@ using CairoMakie
 faas_data = fetch_faas("data/Faas_2011.xlsx");
 shifman_data = fetch_shifman("data/Shifman_2006.xlsx");
 
+crouch_raw  = XLSX.readxlsx("data/Crouch_Klee_1980.xlsx");
+shifman_raw = XLSX.readxlsx("data/Shifman_2006.xlsx");
+
+f = Figure()
+ax = Axis(f[1,1], 
+    xlabel="Free Ca²⁺",
+    ylabel="Ca²⁺ per CaM",
+    limits=(nothing, 1e-4, nothing, nothing)
+    )
+scatter!(ax, 10 .^(crouch_raw["Crouch_Klee_1980"]["A"][:]), 
+    Float64.(crouch_raw["Crouch_Klee_1980"]["B"][:]), 
+    label="Crouch & Klee 1980 (25°C)", alpha=0.5)
+scatter!(ax, Float64.(shifman_raw["Shifman_2006.csv"]["A"][2:end]) * 1e-6, 
+    Float64.(shifman_raw["Shifman_2006.csv"]["B"][2:end]), 
+    label="Shifman et al. 2006 (35°C)", alpha=0.5)
+Legend(f[1,2], ax)
+
 ################################
 ### GLOBAL PLOTTING SETTINGS ###
 ################################
@@ -316,12 +333,12 @@ save_fpms("trained_models/",
     shifman             = fpms_shifman,
     shifman_fixed       = fpms_shifman_fixed,
     pepke_m2            = fpms_pepke_m2,
-    pepke_m2_fixed      = fpms_pepke_m2_fixed
-###    faas                = fpms_faas,
-###    faas_fixed          = fpms_faas_fixed,
-###    pepke_m1_fixed      = fpms_pepke_m1_fixed,
-###    byrne               = fpms_byrne,
-###    byrne_fixed         = fpms_byrne_fixed
+    pepke_m2_fixed      = fpms_pepke_m2_fixed,
+    faas                = fpms_faas,
+    faas_fixed          = fpms_faas_fixed,
+    pepke_m1_fixed      = fpms_pepke_m1_fixed,
+    byrne               = fpms_byrne,
+    byrne_fixed         = fpms_byrne_fixed
     ),
     val_idxs,
     test_idxs,
@@ -363,3 +380,10 @@ faas_pairplot_figure = faas_parameter_pairplot(
     fpms_nt[:faas], fpms_nt[:faas_fixed], fpms_nt[:pepke_m1_fixed], gs; save=true)
 byrne_pairplot_figure = byrne_parameter_pairplot(
     fpms_nt[:byrne], fpms_nt[:byrne_fixed], gs; save=true)
+
+
+###################################
+### FENS 2024 PLOTS AND OUTPUTS ###
+###################################
+
+faas_figure_fens    = data_plots_fens(faas_data, "data/Shifman_2006.xlsx", gs; save=true, w=30, h=13) 

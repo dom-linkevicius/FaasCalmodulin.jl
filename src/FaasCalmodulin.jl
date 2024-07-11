@@ -13,6 +13,7 @@ using DeepPumas
 ###using Plots
 import NNlib.sigmoid
 using CairoMakie
+using FileIO
 
 ###using DifferentialEquations
 ###using JLD2
@@ -32,6 +33,9 @@ export plot_by_condition, faas_data_plots, shifman_data_plot, violin_plot, big_p
 export equilibrium_plot, aic_plot, integration_plot, correlation_plot, byrne_c_n_plot
 export blackwell_parameter_pairplot, bhalla_parameter_pairplot, shifman_parameter_pairplot, pepke_m2_parameter_pairplot
 export faas_parameter_pairplot, byrne_parameter_pairplot
+
+include("plot_recipes_fens_2024.jl")
+export  data_plots_fens #, shifman_data_plot, violin_plot, big_plot
 ###export model_setup
 ###include("SymbolicsForwardDiffExt.jl")
 ###include("convenience.jl");
