@@ -6,22 +6,22 @@ using CairoMakie
 faas_data = fetch_faas("data/Faas_2011.xlsx");
 shifman_data = fetch_shifman("data/Shifman_2006.xlsx");
 
-crouch_raw  = XLSX.readxlsx("data/Crouch_Klee_1980.xlsx");
-shifman_raw = XLSX.readxlsx("data/Shifman_2006.xlsx");
-
-f = Figure()
-ax = Axis(f[1,1], 
-    xlabel="Free Ca²⁺",
-    ylabel="Ca²⁺ per CaM",
-    limits=(nothing, 1e-4, nothing, nothing)
-    )
-scatter!(ax, 10 .^(crouch_raw["Crouch_Klee_1980"]["A"][:]), 
-    Float64.(crouch_raw["Crouch_Klee_1980"]["B"][:]), 
-    label="Crouch & Klee 1980 (25°C)", alpha=0.5)
-scatter!(ax, Float64.(shifman_raw["Shifman_2006.csv"]["A"][2:end]) * 1e-6, 
-    Float64.(shifman_raw["Shifman_2006.csv"]["B"][2:end]), 
-    label="Shifman et al. 2006 (35°C)", alpha=0.5)
-Legend(f[1,2], ax)
+###crouch_raw  = XLSX.readxlsx("data/Crouch_Klee_1980.xlsx");
+###shifman_raw = XLSX.readxlsx("data/Shifman_2006.xlsx");
+###
+###f = Figure()
+###ax = Axis(f[1,1], 
+###    xlabel="Free Ca²⁺",
+###    ylabel="Ca²⁺ per CaM",
+###    limits=(nothing, 1e-4, nothing, nothing)
+###    )
+###scatter!(ax, 10 .^(crouch_raw["Crouch_Klee_1980"]["A"][:]), 
+###    Float64.(crouch_raw["Crouch_Klee_1980"]["B"][:]), 
+###    label="Crouch & Klee 1980 (25°C)", alpha=0.5)
+###scatter!(ax, Float64.(shifman_raw["Shifman_2006.csv"]["A"][2:end]) * 1e-6, 
+###    Float64.(shifman_raw["Shifman_2006.csv"]["B"][2:end]), 
+###    label="Shifman et al. 2006 (35°C)", alpha=0.5)
+###Legend(f[1,2], ax)
 
 ################################
 ### GLOBAL PLOTTING SETTINGS ###
@@ -85,7 +85,7 @@ fpms_blackwell, _, _, val_idxs, test_idxs = train_n_models(
     seeds, 
     sub_range = sub_idxs,
     fixed=false, 
-    plot=true,
+    plot=false,
     alg=JointMAP(), 
     diffeq_options=(;alg=Rodas5P(), abstol=1e-16),
     optim_options=(;iterations=n_iterations, 
@@ -326,7 +326,7 @@ fpms_byrne_fixed, _, _, _, _ = train_n_models(
 
 save_fpms("trained_models/",
     (
-    blackwell          = fpms_blackwell,
+    blackwell           = fpms_blackwell,
     blackwell_fixed     = fpms_blackwell_fixed,
     bhalla              = fpms_bhalla,
     bhalla_fixed        = fpms_bhalla_fixed,
@@ -343,7 +343,28 @@ save_fpms("trained_models/",
     val_idxs,
     test_idxs,
     ".jls"
-)
+);
+
+save_non_fpms_outputs("trained_params/",
+###    (
+###    blackwell           = fpms_blackwell,
+###    blackwell_fixed     = fpms_blackwell_fixed,
+###    bhalla              = fpms_bhalla,
+###    bhalla_fixed        = fpms_bhalla_fixed,
+###    shifman             = fpms_shifman,
+###    shifman_fixed       = fpms_shifman_fixed,
+###    pepke_m2            = fpms_pepke_m2,
+###    pepke_m2_fixed      = fpms_pepke_m2_fixed,
+###    faas                = fpms_faas,
+###    faas_fixed          = fpms_faas_fixed,
+###    pepke_m1_fixed      = fpms_pepke_m1_fixed,
+###    byrne               = fpms_byrne,
+###    byrne_fixed         = fpms_byrne_fixed
+###    ),
+    fpms_nt, 
+    test_mses_nt,
+    ".jls"
+);
 
 
 #########################

@@ -148,6 +148,7 @@ function load_fpms(folder, fpm_names, suffix)
 
 end
 
+
 function save_fpms(folder::String, fpm_nt::NamedTuple, val, test, suffix::String)
 
     map(keys(fpm_nt)) do key
@@ -156,6 +157,19 @@ function save_fpms(folder::String, fpm_nt::NamedTuple, val, test, suffix::String
 
     Serialization.serialize(folder * "val_idxs_" * suffix, val)
     Serialization.serialize(folder * "test_idxs_" * suffix, test)
+end
+
+
+function save_non_fpms_outputs(folder::String, fpm_nt::NamedTuple, test_loss_nt::NamedTuple, suffix::String)
+
+    map(keys(fpm_nt)) do key
+        params = [(params=i,) for i in coef.(fpm_nt[key])]
+        losses = [(test_loss=i,) for i in test_loss_nt[key]]
+        arr_nt = [merge(i,j) for (i,j) in zip(params,losses)]
+
+        nt = NamedTuple{Tuple([Symbol("run"*string(i)) for i in 1:length(params)])}(Tuple(arr_nt))
+        Serialization.serialize(folder * "params_" * string(key) * suffix, nt)
+    end
 end
 
 ###function aic_boxplots(triples)

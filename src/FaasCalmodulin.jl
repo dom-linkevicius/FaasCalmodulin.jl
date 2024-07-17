@@ -25,7 +25,7 @@ include("process_data.jl");
 export fetch_faas, fetch_shifman
 include("models.jl");
 include("model_training.jl");
-export train_n_models, plot_by_condition, load_fpms, save_fpms
+export train_n_models, plot_by_condition, load_fpms, save_fpms, save_non_fpms_outputs
 include("metrics.jl")
 export rmse, shifman_error, my_aic, variance, cohen_d, print_mses_training, print_mses_validation, print_mses_testing
 include("plot_recipes.jl")

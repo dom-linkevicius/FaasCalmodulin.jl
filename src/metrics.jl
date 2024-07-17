@@ -14,7 +14,7 @@ function rmse(fpm; pop=nothing)
         end
    end
 
-   return skipmissing(RMSEs)
+   return collect(skipmissing(RMSEs))
 end
 
 
