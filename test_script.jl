@@ -6,23 +6,6 @@ using CairoMakie
 faas_data = fetch_faas("data/Faas_2011.xlsx");
 shifman_data = fetch_shifman("data/Shifman_2006.xlsx");
 
-###crouch_raw  = XLSX.readxlsx("data/Crouch_Klee_1980.xlsx");
-###shifman_raw = XLSX.readxlsx("data/Shifman_2006.xlsx");
-###
-###f = Figure()
-###ax = Axis(f[1,1], 
-###    xlabel="Free Ca²⁺",
-###    ylabel="Ca²⁺ per CaM",
-###    limits=(nothing, 1e-4, nothing, nothing)
-###    )
-###scatter!(ax, 10 .^(crouch_raw["Crouch_Klee_1980"]["A"][:]), 
-###    Float64.(crouch_raw["Crouch_Klee_1980"]["B"][:]), 
-###    label="Crouch & Klee 1980 (25°C)", alpha=0.5)
-###scatter!(ax, Float64.(shifman_raw["Shifman_2006.csv"]["A"][2:end]) * 1e-6, 
-###    Float64.(shifman_raw["Shifman_2006.csv"]["B"][2:end]), 
-###    label="Shifman et al. 2006 (35°C)", alpha=0.5)
-###Legend(f[1,2], ax)
-
 ################################
 ### GLOBAL PLOTTING SETTINGS ###
 ################################
@@ -47,6 +30,9 @@ gs = (
 ######################
 ### LOADING MODELS ###
 ###################### 
+### Pumas models can be quite brittle when switching versions ###
+### So most likely would need to re-train for anyone using this code ###
+
 
 fpms_nt, val_idxs, test_idxs = load_fpms(
     "trained_models/",
@@ -363,21 +349,21 @@ save_fpms(
 
 save_non_fpms_outputs(
     "trained_params/",
-    ###    (
-    ###    blackwell           = fpms_blackwell,
-    ###    blackwell_fixed     = fpms_blackwell_fixed,
-    ###    bhalla              = fpms_bhalla,
-    ###    bhalla_fixed        = fpms_bhalla_fixed,
-    ###    shifman             = fpms_shifman,
-    ###    shifman_fixed       = fpms_shifman_fixed,
-    ###    pepke_m2            = fpms_pepke_m2,
-    ###    pepke_m2_fixed      = fpms_pepke_m2_fixed,
-    ###    faas                = fpms_faas,
-    ###    faas_fixed          = fpms_faas_fixed,
-    ###    pepke_m1_fixed      = fpms_pepke_m1_fixed,
-    ###    byrne               = fpms_byrne,
-    ###    byrne_fixed         = fpms_byrne_fixed
-    ###    ),
+        (
+        blackwell           = fpms_blackwell,
+        blackwell_fixed     = fpms_blackwell_fixed,
+        bhalla              = fpms_bhalla,
+        bhalla_fixed        = fpms_bhalla_fixed,
+        shifman             = fpms_shifman,
+        shifman_fixed       = fpms_shifman_fixed,
+        pepke_m2            = fpms_pepke_m2,
+        pepke_m2_fixed      = fpms_pepke_m2_fixed,
+        faas                = fpms_faas,
+        faas_fixed          = fpms_faas_fixed,
+        pepke_m1_fixed      = fpms_pepke_m1_fixed,
+        byrne               = fpms_byrne,
+        byrne_fixed         = fpms_byrne_fixed
+        ),
     fpms_nt,
     test_mses_nt,
     ".jls",
@@ -431,11 +417,3 @@ faas_pairplot_figure = faas_parameter_pairplot(
 )
 byrne_pairplot_figure =
     byrne_parameter_pairplot(fpms_nt[:byrne], fpms_nt[:byrne_fixed], gs; save = true)
-
-
-###################################
-### FENS 2024 PLOTS AND OUTPUTS ###
-###################################
-
-faas_figure_fens =
-    data_plots_fens(faas_data, "data/Shifman_2006.xlsx", gs; save = true, w = 30, h = 13)

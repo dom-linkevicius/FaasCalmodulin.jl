@@ -90,52 +90,6 @@ function fetch_shifman(fname)
 end
 
 
-function fetch_crouch(fname)
-
-    f = XLSX.readxlsx(fname)
-
-    pop = []
-    t = [0.0; 1.0]
-
-    X = f["Shifman_2006.csv"]["A"][2:end] .* 1e-6
-    Y = [i for i in f["Shifman_2006.csv"]["B"][2:end]]
-
-    for (Ca_i, CaM_i) in zip(X, Y)
-
-        p = Subject(;
-            id = Random.randstring(),
-            covariates = (
-                cov_f_frac = 1.0,
-                cov_τ_f = 1.0,
-                cov_τ_s = 1.0,
-                cov_kon_DMn = 1.0,
-                cov_koff_DMn = 1.0,
-                cov_Kd_DMn = 1.0,
-                cov_koff_PP = 1.0,
-                cov_DMn_t = 0.0,
-                cov_CaM_t = 5e-6,
-                cov_OGB5_t = 0.0,
-                cov_Fluo4FF_t = 5e-6,
-                cov_Ca_free = Ca_i,
-                PCD = 1.0,
-                cov_τ_decay = 0,
-                cov_Ca_i = 0,
-                CaM_equil = true,
-                cov_kon_D = 8.77e5,         ### in M^-1 ms^-1
-                cov_koff_D = 33.2,
-                cov_Kd_Fluo4FF = 23e-6, ## https://pubmed.ncbi.nlm.nih.gov/29604967/
-                cov_kon_Fluo4FF = 1,
-            ),
-            observations = (F_F0 = [missing; missing], Ca_CaM = [CaM_i; CaM_i]),
-            time = t,
-        )
-        push!(pop, p)
-    end
-
-    return [pop...]
-end
-
-
 function subsample_start(pop, slice)
 
     new_pop = []

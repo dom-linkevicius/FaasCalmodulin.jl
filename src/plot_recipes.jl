@@ -235,7 +235,6 @@ function gen_f_data(f, amp)
 
     sub = Subject(;
         id = "1",
-        ###events = DosageRegimen([DosageRegimen(35e-6/f, time=i) for i in LinRange(20, 1020, f)]...),
         events = DosageRegimen([DosageRegimen(amp, time=i) for i in LinRange(20, 1020, f)]...),
         covariates = (cov_f_frac    = 0, 
                         cov_τ_f     = 1,
