@@ -1,11 +1,11 @@
 AVAILABLE_MODELS = (
     Blackwell = Blackwell_scheme,
-    Bhalla = Bhalla_scheme, 
-    Shifman = Shifman_scheme, 
+    Bhalla = Bhalla_scheme,
+    Shifman = Shifman_scheme,
     Pepke_m2 = Pepke_m2_scheme,
-    Faas = Faas_scheme, 
+    Faas = Faas_scheme,
     Pepke_m1 = Pepke_m1_scheme,
-    Byrne = Byrne_scheme, 
+    Byrne = Byrne_scheme,
 )
 
 
@@ -20,7 +20,7 @@ FIXED_PARAMSETS = (
 )
 
 
-function model_setup(scheme; fixed=false)    
+function model_setup(scheme; fixed = false)
 
     if scheme in keys(AVAILABLE_MODELS)
 
@@ -33,7 +33,7 @@ function model_setup(scheme; fixed=false)
             constantcoefs = ()
         end
         return model, init_p, constantcoefs
-    
+
     else
         ThrowError("Given model_type", scheme, " is not supported.")
     end
@@ -50,28 +50,46 @@ function faas_splitting()
     F_idx = shuffle(66:80)
     G_idx = shuffle(81:94)
 
-    train_idx = [A_idx[1:7];   B_idx[1:7];   C_idx[1:7]; D_idx[1:7];   E_idx[1:7];   F_idx[1:7];   G_idx[1:7]]
-    val_idx   = [A_idx[8:10];  B_idx[8:9];   C_idx[8:8]; D_idx[8:12];  E_idx[8:11];  F_idx[8:11];  G_idx[8:11]]
-    test_idx  = [A_idx[11:13]; B_idx[10:11]; C_idx[9:9]; D_idx[13:16]; E_idx[12:14]; F_idx[12:15]; G_idx[12:14]]
+    train_idx =
+        [A_idx[1:7]; B_idx[1:7]; C_idx[1:7]; D_idx[1:7]; E_idx[1:7]; F_idx[1:7]; G_idx[1:7]]
+    val_idx = [
+        A_idx[8:10]
+        B_idx[8:9]
+        C_idx[8:8]
+        D_idx[8:12]
+        E_idx[8:11]
+        F_idx[8:11]
+        G_idx[8:11]
+    ]
+    test_idx = [
+        A_idx[11:13]
+        B_idx[10:11]
+        C_idx[9:9]
+        D_idx[13:16]
+        E_idx[12:14]
+        F_idx[12:15]
+        G_idx[12:14]
+    ]
 
     return train_idx, val_idx, test_idx
 end
 
 
-function train_n_models(scheme, 
-    faas_pop, 
+function train_n_models(
+    scheme,
+    faas_pop,
     shif_pop,
     n,
     seeds;
     fixed = false,
     plot = false,
-    sub_range=nothing,
-    alg=JointMAP(), 
-    kwargs...
-    )
+    sub_range = nothing,
+    alg = JointMAP(),
+    kwargs...,
+)
 
     n_fpms = []
-    val_idxs  = []
+    val_idxs = []
     test_idxs = []
 
     if sub_range !== nothing && faas_pop !== nothing
@@ -80,19 +98,19 @@ function train_n_models(scheme,
         sub_faas_pop = faas_pop
     end
 
-    for i in 1:n
+    for i = 1:n
 
         Random.seed!(seeds[i]) ### this is for sampling param reproducibility
-        model, init_p, constantcoefs = model_setup(scheme;fixed=fixed)
+        model, init_p, constantcoefs = model_setup(scheme; fixed = fixed)
 
         if faas_pop === nothing && shif_pop === nothing
             ThrowError("Both data sets are nothing")
         elseif faas_pop === nothing && shif_pop !== nothing
             train_pop = shif_pop
         end
-        
-        if faas_pop !== nothing 
-        
+
+        if faas_pop !== nothing
+
             Random.seed!(seeds[i]) ### this is for sampling train/val/test data set reproducibility
             train_idx, val_idx, test_idx = faas_splitting()
 
@@ -106,13 +124,7 @@ function train_n_models(scheme,
             end
         end
 
-        fpm_i = fit(model, 
-        train_pop,
-        init_p, 
-        alg; 
-        constantcoef=constantcoefs,
-        kwargs...
-    );
+        fpm_i = fit(model, train_pop, init_p, alg; constantcoef = constantcoefs, kwargs...)
         push!(n_fpms, fpm_i)
     end
 
@@ -120,7 +132,7 @@ function train_n_models(scheme,
         p_train = plot_by_condition(n_fpms)
 
         pops_val = [faas_pop[i] for i in val_idxs]
-        p_val = plot_by_condition(n_fpms; pops=pops_val)
+        p_val = plot_by_condition(n_fpms; pops = pops_val)
 
         return n_fpms, p_train, p_val, val_idxs, test_idxs
     end
@@ -135,7 +147,7 @@ function load_fpms(folder, fpm_names, suffix)
         fpms_i = Serialization.deserialize(folder * "fpms_" * name * suffix)
         if name == "blackwell"
             println("Removing a failed run from Blackwell")
-            fpms_i = fpms_i[[1:12;14:20]]
+            fpms_i = fpms_i[[1:12; 14:20]]
         end
         fpms_i
     end
@@ -160,14 +172,21 @@ function save_fpms(folder::String, fpm_nt::NamedTuple, val, test, suffix::String
 end
 
 
-function save_non_fpms_outputs(folder::String, fpm_nt::NamedTuple, test_loss_nt::NamedTuple, suffix::String)
+function save_non_fpms_outputs(
+    folder::String,
+    fpm_nt::NamedTuple,
+    test_loss_nt::NamedTuple,
+    suffix::String,
+)
 
     map(keys(fpm_nt)) do key
-        params = [(params=i,) for i in coef.(fpm_nt[key])]
-        losses = [(test_loss=i,) for i in test_loss_nt[key]]
-        arr_nt = [merge(i,j) for (i,j) in zip(params,losses)]
+        params = [(params = i,) for i in coef.(fpm_nt[key])]
+        losses = [(test_loss = i,) for i in test_loss_nt[key]]
+        arr_nt = [merge(i, j) for (i, j) in zip(params, losses)]
 
-        nt = NamedTuple{Tuple([Symbol("run"*string(i)) for i in 1:length(params)])}(Tuple(arr_nt))
+        nt = NamedTuple{Tuple([Symbol("run" * string(i)) for i = 1:length(params)])}(
+            Tuple(arr_nt),
+        )
         Serialization.serialize(folder * "params_" * string(key) * suffix, nt)
     end
 end

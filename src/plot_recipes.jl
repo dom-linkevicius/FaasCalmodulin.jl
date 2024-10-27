@@ -729,7 +729,7 @@ function violin_plot(test_nt, gs; w=17, h=7.5, save=false)
                       "Scheme 2 + our rates";
                       "Scheme 2 + Bhalla and Iyengar";
                       "Scheme 3 + our rates";
-                      "Scheme 3 + Shifman et al. + our rates";
+                      "Scheme 3 + Shifman et al.";
                       "Scheme 4 + our rates";
                       "Scheme 4 + Pepke et al.";
                       "Scheme 5 + our rates";
@@ -803,7 +803,7 @@ function violin_plot(test_nt, gs; w=17, h=7.5, save=false)
 end
 
 
-function big_plot(fpms_nt, faas_data, val_idxs, gs; w=17, h=22.23, save=false)
+function big_plot(fpms_nt, faas_data, val_idxs, gs; w=17.5, h=22.23, save=false)
 
 
     size_cm     = (w, h)
@@ -816,7 +816,7 @@ function big_plot(fpms_nt, faas_data, val_idxs, gs; w=17, h=22.23, save=false)
               gs.our_col; gs.faas_col; gs.pepke_col; gs.our_col; gs.byrne_col];
     rowslist = collect(1:13)
     names = ["Our rates"; "Kim et al.";
-            "Our rates"; "Hayer and Bhalla";
+            "Our rates"; "Bhalla and Iyengar";
             "Our rates"; "Shifman et al.";
             "Our rates"; "Peple et al.";
             "Our rates"; "Faas et al."; "Pepke et al.";
@@ -952,7 +952,7 @@ function big_plot(fpms_nt, faas_data, val_idxs, gs; w=17, h=22.23, save=false)
         ["Our rates", "Kim et al. \n rates"], "Scheme 1", titleposition=:top, framevisible=false, labelsize=8, nbanks=1, 
         labeljustification=:center)
     CairoMakie.Legend(f[3:4, 8], [f.content[15].scene.plots[end], f.content[22].scene.plots[end]], 
-        ["Our rates", "Hayer and \n Bhalla rates"], "Scheme 2", titleposition=:top, framevisible=false, labelsize=8, nbanks=1, 
+        ["Our rates", "Bhalla and \nIyengar rates"], "Scheme 2", titleposition=:top, framevisible=false, labelsize=8, nbanks=1, 
         labeljustification=:center)
     CairoMakie.Legend(f[5:6, 8], [f.content[29].scene.plots[end], f.content[36].scene.plots[end]], 
         ["Our rates", "Shifman et al. \n rates"], "Scheme 3", titleposition=:top, framevisible=false, labelsize=8, nbanks=1, 
@@ -1091,7 +1091,7 @@ function equilibrium_plot(fpms_nt, gs; w=17, h=22.23, save=false, shifman_dir="d
     f_eqs, f_eqs_ax13 = plot_CaM_eqs(ca_range, shifman_CaM_tup;       i=3, j=1, title="Scheme 3", 
         color=gs.our_col,  f=f_eqs, new_axis=true,   xlabel=nothing, ylabel=nothing, limits=lims, label="Our rates");
     _, _      = plot_CaM_eqs(ca_range, shifman_fixed_CaM_tup;         i=3, j=1, title="Scheme 3", 
-        color=gs.shifman_col, f=f_eqs,   xlabel=nothing, ylabel=nothing, limits=lims, label="Shifman et al. \n + our rates");
+        color=gs.shifman_col, f=f_eqs,   xlabel=nothing, ylabel=nothing, limits=lims, label="Shifman et al. rates");
     CairoMakie.scatter!(f_eqs_ax13, X_shifman, Y_shifman, 
         marker=:utriangle, label="Shifman et al. data", color=(:black, 0.3));
     CairoMakie.Legend(f_eqs[3, 2], f_eqs_ax13, "Scheme 3", unique=true, valign=:center, framevisible=false, labelsize=8)
@@ -1164,7 +1164,7 @@ function aic_plot(fpms_nt, faas_data, idxs, gs; w=17, h=7.5, save=false)
                  repeat(["Scheme 2 + our rates"], length(fpms_nt[:pepke_m2]));
                  repeat(["Scheme 2 + Hayer and Bhalla"], length(fpms_nt[:pepke_m2_fixed]));
                  repeat(["Scheme 3 + our rates"], length(fpms_nt[:pepke_m2]));
-                 repeat(["Scheme 3 + Shifman et al. + our rates"], length(fpms_nt[:pepke_m2_fixed]));
+                 repeat(["Scheme 3 + Shifman et al."], length(fpms_nt[:pepke_m2_fixed]));
                  repeat(["Scheme 4 + our rates"], length(fpms_nt[:pepke_m2]));
                  repeat(["Scheme 4 + Pepke et al."], length(fpms_nt[:pepke_m2_fixed]));
                  repeat(["Scheme 5 + our rates"], length(fpms_nt[:faas]));
@@ -1218,14 +1218,14 @@ function aic_plot(fpms_nt, faas_data, idxs, gs; w=17, h=7.5, save=false)
     ax_boxplot = CairoMakie.Axis(f[1,1], 
         xticks=(unique(x_makie), unique(x)),
         xlabel="Scheme + parameters",
-        ylabel="log10(AIC)",
+        ylabel="AIC",
         xticklabelrotation=pi/9,
         xticklabelpad=5,
         xlabelpadding=15,
         xticklabelsize=8,
         yticklabelsize=8,
         xgridvisible=false,
-        yscale=log10
+        ##yscale=log10
         )
     CairoMakie.boxplot!(ax_boxplot, x_makie, y_makie, show_notch=false, color=boxplot_cols)
 
@@ -1377,7 +1377,7 @@ function integration_plot(fpms_nt, gs; w=17, h=10, save=false)
     
     CairoMakie.Label(f_int[1,1], "Partially bound CaM", rotation=pi/2)
     CairoMakie.Label(f_int[2,1], "Fully bound CaM", rotation=pi/2)
-    CairoMakie.Label(f_int[1:2,0], "AUC", rotation=pi/2)
+    CairoMakie.Label(f_int[1:2,0], "Ca²⁺ signal integration level", rotation=pi/2)
     CairoMakie.Label(f_int[3,:], "Frequency (Hz)")
     
     for i in 1:2

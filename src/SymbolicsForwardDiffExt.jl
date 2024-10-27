@@ -26,17 +26,32 @@ macro define_binary_dual_op(f, xy_body, x_body, y_body, Ts)
     return esc(defs)
 end
 
-macro define_ternary_dual_op(f, xyz_body, xy_body, xz_body, yz_body, x_body, y_body, z_body, Ts)
+macro define_ternary_dual_op(
+    f,
+    xyz_body,
+    xy_body,
+    xz_body,
+    yz_body,
+    x_body,
+    y_body,
+    z_body,
+    Ts,
+)
     FD = ForwardDiff
     defs = quote end
     for R in Ts
         expr = quote
             @inline $(f)(x::$FD.Dual{Txy}, y::$FD.Dual{Txy}, z::$R) where {Txy} = $xy_body
-            @inline $(f)(x::$FD.Dual{Tx}, y::$FD.Dual{Ty}, z::$R)  where {Tx, Ty} = Ty ≺ Tx ? $x_body : $y_body
-            @inline $(f)(x::$FD.Dual{Txz}, y::$R, z::$FD.Dual{Txz}) where {Txz} = $xz_body
-            @inline $(f)(x::$FD.Dual{Tx}, y::$R, z::$FD.Dual{Tz}) where {Tx,Tz} = Tz ≺ Tx ? $x_body : $z_body
-            @inline $(f)(x::$R, y::$FD.Dual{Tyz}, z::$FD.Dual{Tyz}) where {Tyz} = $yz_body
-            @inline $(f)(x::$R, y::$FD.Dual{Ty}, z::$FD.Dual{Tz}) where {Ty,Tz} = Tz ≺ Ty ? $y_body : $z_body
+            @inline $(f)(x::$FD.Dual{Tx}, y::$FD.Dual{Ty}, z::$R) where {Tx,Ty} =
+                Ty ≺ Tx ? $x_body : $y_body
+            @inline $(f)(x::$FD.Dual{Txz}, y::$R, z::$FD.Dual{Txz}) where {Txz} =
+                $xz_body
+            @inline $(f)(x::$FD.Dual{Tx}, y::$R, z::$FD.Dual{Tz}) where {Tx,Tz} =
+                Tz ≺ Tx ? $x_body : $z_body
+            @inline $(f)(x::$R, y::$FD.Dual{Tyz}, z::$FD.Dual{Tyz}) where {Tyz} =
+                $yz_body
+            @inline $(f)(x::$R, y::$FD.Dual{Ty}, z::$FD.Dual{Tz}) where {Ty,Tz} =
+                Tz ≺ Ty ? $y_body : $z_body
         end
         append!(defs.args, expr.args)
         for Q in Ts
@@ -83,7 +98,14 @@ function binary_dual_definition(M, f, Ts)
             begin
                 vx, vy = $FD.value(x), $FD.value(y)
                 $xy_work
-                return $FD.dual_definition_retval(Val{Txy}(), val, dvx, $FD.partials(x), dvy, $FD.partials(y))
+                return $FD.dual_definition_retval(
+                    Val{Txy}(),
+                    val,
+                    dvx,
+                    $FD.partials(x),
+                    dvy,
+                    $FD.partials(y),
+                )
             end,
             begin
                 vx = $FD.value(x)
@@ -106,7 +128,15 @@ end
 ###################################
 
 for (M, f, arity) in DiffRules.diffrules(filter_modules = nothing)
-    if (M, f) in ((:Base, :^), (:NaNMath, :pow), (:Base, :/), (:Base, :+), (:Base, :-), (:Base, :sin), (:Base, :cos))
+    if (M, f) in (
+        (:Base, :^),
+        (:NaNMath, :pow),
+        (:Base, :/),
+        (:Base, :+),
+        (:Base, :-),
+        (:Base, :sin),
+        (:Base, :cos),
+    )
         continue  # Skip methods which we define elsewhere.
     elseif !(isdefined(@__MODULE__, M) && isdefined(getfield(@__MODULE__, M), f))
         continue  # Skip rules for methods not defined in the current scope
@@ -209,7 +239,7 @@ for f in (:(Base.:^), :(NaNMath.pow))
             begin
                 v = value(y)
                 expv = ($f)(x, v)
-                deriv = (iszero(x) && v > 0) ? zero(expv) : expv*log(x)
+                deriv = (iszero(x) && v > 0) ? zero(expv) : expv * log(x)
                 return Dual{Ty}(expv, deriv * partials(y))
             end,
             $AMBIGUOUS_TYPES

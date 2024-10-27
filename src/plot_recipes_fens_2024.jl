@@ -2075,160 +2075,179 @@
 ###
 
 
-function data_plots_fens(faas_data, shifman_dir, gs; w=17, h=7, save=false)
+function data_plots_fens(faas_data, shifman_dir, gs; w = 17, h = 7, save = false)
 
-    size_cm     = (w, h)
-    size_px     =  size_cm .* gs.dpc 
-    size_units  =  size_cm .* gs.pt_per_cm
-    px_per_unit = (size_cm .* gs.dpc ./ (size_cm .* gs.pt_per_cm))[1]
+    size_cm = (w, h)
+    size_px = size_cm .* gs.dpc
+    size_units = size_cm .* gs.pt_per_cm
+    px_per_unit = (size_cm.*gs.dpc./(size_cm.*gs.pt_per_cm))[1]
 
-    lw  = 1
-    ylim= [0, 22.5]
+    lw = 1
+    ylim = [0, 22.5]
 
-    groups = [faas_data[1:13], 
-        faas_data[14:24], 
-        faas_data[25:35], 
-        faas_data[36:51], 
-        faas_data[52:65], 
-        faas_data[66:80], 
-        faas_data[81:94]
+    groups = [
+        faas_data[1:13],
+        faas_data[14:24],
+        faas_data[25:35],
+        faas_data[36:51],
+        faas_data[52:65],
+        faas_data[66:80],
+        faas_data[81:94],
     ]
 
-    f = CairoMakie.Figure(resolution=size_units, fontsize=gs.fontsize)
+    f = CairoMakie.Figure(resolution = size_units, fontsize = gs.fontsize)
 
-    ax1 = CairoMakie.Axis(f[1,1], 
-    )
+    ax1 = CairoMakie.Axis(f[1, 1])
     hidedecorations!(ax1)
     hidespines!(ax1)
 
     yticks = [1; 5; 10; 15; 20]
 
-    ax2 = CairoMakie.Axis(f[1,2], 
-        title="Group A \n DMn=5.56mM OGB-5N=50μM \n Ca²⁺=1.88μM CaM=123μM", 
-        limits = (-3, 43, ylim[1], ylim[2]), 
+    ax2 = CairoMakie.Axis(
+        f[1, 2],
+        title = "Group A \n DMn=5.56mM OGB-5N=50μM \n Ca²⁺=1.88μM CaM=123μM",
+        limits = (-3, 43, ylim[1], ylim[2]),
         yticks = yticks,
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize,
-        xticksvisible=false,
-        xticklabelsvisible=false,
-        yticksvisible=false,
-        yticklabelsvisible=false,
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
+        xticksvisible = false,
+        xticklabelsvisible = false,
+        yticksvisible = false,
+        yticklabelsvisible = false,
     )
     for i in groups[1]
-        CairoMakie.lines!(ax2, i.time, i.observations.F_F0, color="black", linewidth=lw)
+        CairoMakie.lines!(ax2, i.time, i.observations.F_F0, color = "black", linewidth = lw)
     end
 
-    ax3 = CairoMakie.Axis(f[1,3], 
-        title="Group B \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=1.10μM CaM=143μM", 
-        limits = (-3, 43, ylim[1], ylim[2]), 
+    ax3 = CairoMakie.Axis(
+        f[1, 3],
+        title = "Group B \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=1.10μM CaM=143μM",
+        limits = (-3, 43, ylim[1], ylim[2]),
         yticks = yticks,
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize,
-        xticksvisible=false,
-        xticklabelsvisible=false,
-        yticksvisible=false,
-        yticklabelsvisible=false
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
+        xticksvisible = false,
+        xticklabelsvisible = false,
+        yticksvisible = false,
+        yticklabelsvisible = false,
     )
     for i in groups[2]
-        CairoMakie.lines!(ax3, i.time, i.observations.F_F0, color="black", linewidth=lw)
+        CairoMakie.lines!(ax3, i.time, i.observations.F_F0, color = "black", linewidth = lw)
     end
 
-    ax4 = CairoMakie.Axis(f[1,4], 
-        title="Group C \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.73μM CaM=72μM", 
-        limits = (-3, 43, ylim[1], ylim[2]), 
+    ax4 = CairoMakie.Axis(
+        f[1, 4],
+        title = "Group C \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.73μM CaM=72μM",
+        limits = (-3, 43, ylim[1], ylim[2]),
         yticks = yticks,
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize,
-        xticksvisible=false,
-        xticklabelsvisible=false,
-        yticksvisible=false,
-        yticklabelsvisible=false
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
+        xticksvisible = false,
+        xticklabelsvisible = false,
+        yticksvisible = false,
+        yticklabelsvisible = false,
     )
     for i in groups[3]
-        CairoMakie.lines!(ax4, i.time, i.observations.F_F0, color="black", linewidth=lw)
+        CairoMakie.lines!(ax4, i.time, i.observations.F_F0, color = "black", linewidth = lw)
     end
 
-    ax5 = CairoMakie.Axis(f[2,1], 
-        title="Group D \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.255μM CaM=187μM", 
-        ylabel="ΔF/F₀",
-        limits = (-3, 43, ylim[1], ylim[2]), 
+    ax5 = CairoMakie.Axis(
+        f[2, 1],
+        title = "Group D \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.255μM CaM=187μM",
+        ylabel = "ΔF/F₀",
+        limits = (-3, 43, ylim[1], ylim[2]),
         yticks = yticks,
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
     )
     for i in groups[4]
-        CairoMakie.lines!(ax5, i.time, i.observations.F_F0, color="black", linewidth=lw)
+        CairoMakie.lines!(ax5, i.time, i.observations.F_F0, color = "black", linewidth = lw)
     end
 
-    ax6 = CairoMakie.Axis(f[2,2], 
-        title="Group E \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.41μM CaM=140μM", 
-        limits = (-3, 43, ylim[1], ylim[2]), 
+    ax6 = CairoMakie.Axis(
+        f[2, 2],
+        title = "Group E \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.41μM CaM=140μM",
+        limits = (-3, 43, ylim[1], ylim[2]),
         yticks = yticks,
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize,
-        yticksvisible=false,
-        yticklabelsvisible=false
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
+        yticksvisible = false,
+        yticklabelsvisible = false,
     )
     for i in groups[5]
-        CairoMakie.lines!(ax6, i.time, i.observations.F_F0, color="black", linewidth=lw)
+        CairoMakie.lines!(ax6, i.time, i.observations.F_F0, color = "black", linewidth = lw)
     end
 
-    ax7 = CairoMakie.Axis(f[2,3], 
-        title="Group F \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.399μM CaM=94μM", 
-        limits = (-3, 43, ylim[1], ylim[2]), 
+    ax7 = CairoMakie.Axis(
+        f[2, 3],
+        title = "Group F \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.399μM CaM=94μM",
+        limits = (-3, 43, ylim[1], ylim[2]),
         yticks = yticks,
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize,
-        yticksvisible=false,
-        yticklabelsvisible=false
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
+        yticksvisible = false,
+        yticklabelsvisible = false,
     )
     for i in groups[6]
-        CairoMakie.lines!(ax7, i.time, i.observations.F_F0, color="black", linewidth=lw)
+        CairoMakie.lines!(ax7, i.time, i.observations.F_F0, color = "black", linewidth = lw)
     end
 
-    ax8 = CairoMakie.Axis(f[2,4], 
-        title="Group G \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.394μM CaM=47μM", 
-        limits = (-3, 43, ylim[1], ylim[2]), 
+    ax8 = CairoMakie.Axis(
+        f[2, 4],
+        title = "Group G \n DMn=3.64mM OGB-5N=100μM \n Ca²⁺=0.394μM CaM=47μM",
+        limits = (-3, 43, ylim[1], ylim[2]),
         yticks = yticks,
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize,
-        yticksvisible=false,
-        yticklabelsvisible=false
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
+        yticksvisible = false,
+        yticklabelsvisible = false,
     )
     for i in groups[7]
-        CairoMakie.lines!(ax8, i.time, i.observations.F_F0, color="black", linewidth=lw)
+        CairoMakie.lines!(ax8, i.time, i.observations.F_F0, color = "black", linewidth = lw)
     end
 
-    f_shifman = XLSX.readxlsx(shifman_dir);
-    X_shifman = f_shifman["Shifman_2006.csv"]["A"][2:end] .* 1e-6;
-    Y_shifman = [i for i in f_shifman["Shifman_2006.csv"]["B"][2:end]];
+    f_shifman = XLSX.readxlsx(shifman_dir)
+    X_shifman = f_shifman["Shifman_2006.csv"]["A"][2:end] .* 1e-6
+    Y_shifman = [i for i in f_shifman["Shifman_2006.csv"]["B"][2:end]]
 
-    ax9 = CairoMakie.Axis(f[1:2,5:6], 
-        ylabel="# Bound Ca²⁺ per CaM", 
-        xlabel="Free Ca²⁺ (M)", 
-        yticklabelsize=gs.fontsize, 
-        xticklabelsize=gs.fontsize,
+    ax9 = CairoMakie.Axis(
+        f[1:2, 5:6],
+        ylabel = "# Bound Ca²⁺ per CaM",
+        xlabel = "Free Ca²⁺ (M)",
+        yticklabelsize = gs.fontsize,
+        xticklabelsize = gs.fontsize,
     )
-    CairoMakie.scatter!(ax9, X_shifman, Y_shifman, color=(:black, 0.4), marker=:utriangle)
+    CairoMakie.scatter!(
+        ax9,
+        X_shifman,
+        Y_shifman,
+        color = (:black, 0.4),
+        marker = :utriangle,
+    )
 
-    Label(f[0,5:6], "Shifman et al. data", font=:bold, fontsize=gs.fontsize*2)
-    Label(f[0,1:4], "Faas et al. data", font=:bold, fontsize=gs.fontsize*2)
+    Label(f[0, 5:6], "Shifman et al. data", font = :bold, fontsize = gs.fontsize * 2)
+    Label(f[0, 1:4], "Faas et al. data", font = :bold, fontsize = gs.fontsize * 2)
 
-    Label(f[3,1:4], "Time(ms)")
+    Label(f[3, 1:4], "Time(ms)")
 
-    rowsize!(f.layout, 1, Relative(1/2.0))
-    rowsize!(f.layout, 2, Relative(1/2.0))
+    rowsize!(f.layout, 1, Relative(1 / 2.0))
+    rowsize!(f.layout, 2, Relative(1 / 2.0))
 
-    for i in 1:6
-        colsize!(f.layout, i, Relative(1/6))
+    for i = 1:6
+        colsize!(f.layout, i, Relative(1 / 6))
     end
 
     rowgap!(f.layout, 10)
     colgap!(f.layout, 10)
 
     if save
-        CairoMakie.save("plots_fens/data_plot.png", f, pt_per_unit=1, px_per_unit=px_per_unit,
-        size=size_units)
+        CairoMakie.save(
+            "plots_fens/data_plot.png",
+            f,
+            pt_per_unit = 1,
+            px_per_unit = px_per_unit,
+            size = size_units,
+        )
     end
 
     return f
